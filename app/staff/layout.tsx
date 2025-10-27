@@ -16,15 +16,33 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
   }, [])
 
   if (!mounted || !isAuthenticated) {
-    return null
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom right, #1e40af, #1e3a8a)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ color: 'white', fontSize: '1.125rem' }}>Loading...</div>
+      </div>
+    )
   }
 
   return (
     <AdminProvider>
       <EmployeeProvider>
-        <div className="flex h-screen">
+        <div style={{ display: 'flex', minHeight: '100vh' }}>
           <EmployeeSidebar />
-          <main className="flex-1 bg-background overflow-auto">{children}</main>
+          <main style={{
+            flex: 1,
+            background: 'linear-gradient(to bottom right, #f8fafc, #f1f5f9)',
+            overflow: 'auto',
+            marginLeft: 0,
+            padding: '1.5rem 2rem'
+          }}>
+            {children}
+          </main>
         </div>
       </EmployeeProvider>
     </AdminProvider>

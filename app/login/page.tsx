@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useAuth } from "@/src/contexts/AuthContext"
 import { useRouter } from "next/navigation"
@@ -19,10 +18,17 @@ export default function LoginPage() {
     setError("")
     setLoading(true)
 
+    console.log("🔑 Login attempt:", { email, password: "***" })
+
     try {
       login(email, password)
-      router.push("/")
+      console.log("✅ Login successful, redirecting to home...")
+      // Give a small delay for state to update
+      setTimeout(() => {
+        router.push("/")
+      }, 100)
     } catch (err) {
+      console.log("❌ Login failed:", err)
       setError("Invalid email or password")
     } finally {
       setLoading(false)
@@ -41,70 +47,86 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full">
-        <h1 className="text-3xl font-bold mb-2 text-foreground">Login</h1>
-        <p className="text-secondary mb-6">Furniture Quotation System</p>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #1e40af, #1e3a8a)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div style={{ background: 'white', borderRadius: '0.5rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', padding: '2rem', maxWidth: '28rem', width: '100%' }}>
+        <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#1f2937' }}>Login</h1>
+        <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>Furniture Quotation System</p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Email</label>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#1f2937', marginBottom: '0.5rem' }}>Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              style={{ width: '100%', padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', outline: 'none' }}
               placeholder="Enter email"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Password</label>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#1f2937', marginBottom: '0.5rem' }}>Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              style={{ width: '100%', padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', outline: 'none' }}
               placeholder="Enter password"
               required
             />
           </div>
 
-          {error && <div className="text-error text-sm">{error}</div>}
+          {error && <div style={{ color: '#dc2626', fontSize: '0.875rem' }}>{error}</div>}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50"
+            style={{
+              width: '100%',
+              background: loading ? '#9ca3af' : '#1e40af',
+              color: 'white',
+              fontWeight: '600',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.5rem',
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'background-color 0.2s'
+            }}
           >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
-        <div className="mt-6 pt-6 border-t border-border">
-          <p className="text-sm font-medium text-foreground mb-3">Demo Accounts:</p>
-          <div className="space-y-2">
+        <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid #e5e7eb' }}>
+          <p style={{ fontSize: '0.875rem', fontWeight: '500', color: '#1f2937', marginBottom: '0.75rem' }}>Demo Accounts:</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <button
               onClick={() => fillDemoCredentials("admin")}
-              className="w-full text-left px-3 py-2 bg-blue-50 hover:bg-blue-100 text-primary rounded text-sm transition"
+              style={{ width: '100%', textAlign: 'left', padding: '0.75rem', background: '#eff6ff', color: '#1e40af', borderRadius: '0.25rem', fontSize: '0.875rem', border: 'none', cursor: 'pointer', transition: 'background-color 0.2s' }}
+              onMouseOver={(e) => (e.target as HTMLElement).style.backgroundColor = '#dbeafe'}
+              onMouseOut={(e) => (e.target as HTMLElement).style.backgroundColor = '#eff6ff'}
             >
               Admin: admin@furniture.com
             </button>
             <button
               onClick={() => fillDemoCredentials("employee")}
-              className="w-full text-left px-3 py-2 bg-green-50 hover:bg-green-100 text-success rounded text-sm transition"
+              style={{ width: '100%', textAlign: 'left', padding: '0.75rem', background: '#f0fdf4', color: '#16a34a', borderRadius: '0.25rem', fontSize: '0.875rem', border: 'none', cursor: 'pointer', transition: 'background-color 0.2s' }}
+              onMouseOver={(e) => (e.target as HTMLElement).style.backgroundColor = '#dcfce7'}
+              onMouseOut={(e) => (e.target as HTMLElement).style.backgroundColor = '#f0fdf4'}
             >
               Employee: employee@furniture.com
             </button>
             <button
               onClick={() => fillDemoCredentials("customer")}
-              className="w-full text-left px-3 py-2 bg-amber-50 hover:bg-amber-100 text-accent rounded text-sm transition"
+              style={{ width: '100%', textAlign: 'left', padding: '0.75rem', background: '#fffbeb', color: '#d97706', borderRadius: '0.25rem', fontSize: '0.875rem', border: 'none', cursor: 'pointer', transition: 'background-color 0.2s' }}
+              onMouseOver={(e) => (e.target as HTMLElement).style.backgroundColor = '#fef3c7'}
+              onMouseOut={(e) => (e.target as HTMLElement).style.backgroundColor = '#fffbeb'}
             >
               Customer: customer@furniture.com
             </button>
           </div>
-          <p className="text-xs text-secondary mt-3">All demo passwords are: admin123, emp123, cust123</p>
+          <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.75rem' }}>All demo passwords are: admin123, emp123, cust123</p>
         </div>
       </div>
     </div>

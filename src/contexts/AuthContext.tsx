@@ -43,7 +43,8 @@ const DUMMY_USERS: Record<string, User & { password: string }> = {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | undefined>(undefined)
+  const [isLoading, setIsLoading] = useState(true)
 
   // Load user from localStorage on mount
   useEffect(() => {
@@ -55,8 +56,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsAuthenticated(true)
       } catch (error) {
         console.error("Failed to parse stored user:", error)
+        setIsAuthenticated(false)
       }
+    } else {
+      setIsAuthenticated(false)
     }
+    setIsLoading(false)
   }, [])
 
   const login = (email: string, password: string) => {
@@ -66,7 +71,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(userWithoutPassword)
       setIsAuthenticated(true)
       localStorage.setItem("currentUser", JSON.stringify(userWithoutPassword))
+      console.log("✅ Login successful:", userWithoutPassword)
     } else {
+      console.log("❌ Login failed for:", email)
       throw new Error("Invalid credentials")
     }
   }
@@ -78,7 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, setUser }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, login, logout, setUser }}>{children}</AuthContext.Provider>
   )
 }
 
