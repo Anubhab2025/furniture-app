@@ -1,193 +1,161 @@
-"use client"
+"use client";
 
-import type { Quotation, QuotationItem } from "@/types/index"
-import { useEmployee } from "@/src/contexts/EmployeeContext"
-import { useAdmin } from "@/src/contexts/AdminContext"
-import { useState, useRef, useEffect } from "react"
-import { History, Filter, Edit3, Eye, Clock, DollarSign, User, Plus, Camera, Upload, Trash2, X, Send, MessageCircle, Mail } from "lucide-react"
-import Image from "next/image"
+import type { Quotation, QuotationItem } from "@/types/index";
+import { useEmployee } from "@/src/contexts/EmployeeContext";
+import { useAdmin } from "@/src/contexts/AdminContext";
+import { useState, useRef, useEffect } from "react";
+import {
+  History, Filter, Edit3, Eye, Clock, DollarSign, User, Plus,
+  Camera, Upload, Trash2, X, Send, MessageCircle, Mail
+} from "lucide-react";
+import Image from "next/image";
 
 export default function HistoryPage() {
-  const { quotations, updateQuotation, sendQuotation } = useEmployee()
-  const { customers, products } = useAdmin()
-  const [filterStatus, setFilterStatus] = useState<string>("all")
-  const [editingQuotation, setEditingQuotation] = useState<Quotation | null>(null)
-  const [sendingQuotation, setSendingQuotation] = useState<Quotation | null>(null)
-  const [selectedCustomer, setSelectedCustomer] = useState("")
-  const [sendMethod, setSendMethod] = useState<"whatsapp" | "email">("whatsapp")
-  const [items, setItems] = useState<QuotationItem[]>([])
-  const [discount, setDiscount] = useState(0)
-  const [tax, setTax] = useState(18)
-  const [showCamera, setShowCamera] = useState<string | null>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const { quotations, updateQuotation, sendQuotation } = useEmployee();
+  const { customers, products } = useAdmin();
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [editingQuotation, setEditingQuotation] = useState<Quotation | null>(null);
+  const [sendingQuotation, setSendingQuotation] = useState<Quotation | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState("");
+  const [sendMethod, setSendMethod] = useState<"whatsapp" | "email">("whatsapp");
+  const [items, setItems] = useState<QuotationItem[]>([]);
+  const [discount, setDiscount] = useState(0);
+  const [tax] = useState(18);
+  const [showCamera, setShowCamera] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const filtered = filterStatus === "all" ? quotations : quotations.filter((q) => q.status === filterStatus)
+  const filtered = filterStatus === "all" ? quotations : quotations.filter((q) => q.status === filterStatus);
 
-  // Sync form state when editingQuotation changes
   useEffect(() => {
     if (editingQuotation) {
-      setSelectedCustomer(editingQuotation.customerId)
-      setItems(editingQuotation.items.map(i => ({ ...i })))
-      setDiscount(editingQuotation.discount || 0)
-      setTax(18)
-      setShowCamera(null)
+      setSelectedCustomer(editingQuotation.customerId);
+      setItems(editingQuotation.items.map(i => ({ ...i })));
+      setDiscount(editingQuotation.discount || 0);
+      setShowCamera(null);
     }
-  }, [editingQuotation])
+  }, [editingQuotation]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "approved": return <DollarSign className="w-3 h-3 text-green-600 mr-1" />
-      case "sent": return <Eye className="w-3 h-3 text-blue-600 mr-1" />
-      case "rejected": return <Clock className="w-3 h-3 text-red-600 mr-1" />
-      default: return <Clock className="w-3 h-3 text-yellow-600 mr-1" />
+      case "approved": return <DollarSign className="w-3 h-3 text-green-600 mr-1" />;
+      case "sent": return <Eye className="w-3 h-3 text-blue-600 mr-1" />;
+      case "rejected": return <Clock className="w-3 h-3 text-red-600 mr-1" />;
+      default: return <Clock className="w-3 h-3 text-yellow-600 mr-1" />;
     }
-  }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "approved": return "bg-green-100 text-green-800"
-      case "sent": return "bg-blue-100 text-blue-800"
-      case "rejected": return "bg-red-100 text-red-800"
-      default: return "bg-yellow-100 text-yellow-800"
+      case "approved": return "bg-green-100 text-green-800";
+      case "sent": return "bg-blue-100 text-blue-800";
+      case "rejected": return "bg-red-100 text-red-800";
+      default: return "bg-yellow-100 text-yellow-800";
     }
-  }
+  };
 
   const getCustomerName = (customerId: string) => {
-    const customer = customers.find(c => c.id === customerId)
-    return customer ? customer.name : `Customer ${customerId}`
-  }
+    const customer = customers.find(c => c.id === customerId);
+    return customer ? customer.name : `Customer ${customerId}`;
+  };
 
-  const openEdit = (quot: Quotation) => {
-    setEditingQuotation(quot)
-  }
-
+  const openEdit = (quot: Quotation) => setEditingQuotation(quot);
   const closeEdit = () => {
-    setEditingQuotation(null)
-    setSelectedCustomer("")
-    setItems([])
-    setDiscount(0)
-    setTax(18)
-    setShowCamera(null)
+    setEditingQuotation(null);
+    setSelectedCustomer("");
+    setItems([]);
+    setDiscount(0);
     if (videoRef.current?.srcObject) {
-      ;(videoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop())
+      (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
     }
-  }
+  };
 
   const openSend = (quot: Quotation) => {
-    setSendingQuotation(quot)
-    setSelectedCustomer(quot.customerId)
-    setSendMethod("whatsapp")
-  }
-
+    setSendingQuotation(quot);
+    setSelectedCustomer(quot.customerId);
+    setSendMethod("whatsapp");
+  };
   const closeSend = () => {
-    setSendingQuotation(null)
-    setSelectedCustomer("")
-  }
+    setSendingQuotation(null);
+    setSelectedCustomer("");
+  };
 
   const handleSend = () => {
-    if (!sendingQuotation || !selectedCustomer) return
-    const customer = customers.find(c => c.id === selectedCustomer)
-    if (!customer) return
+    if (!sendingQuotation || !selectedCustomer) return;
+    const customer = customers.find(c => c.id === selectedCustomer);
+    if (!customer) return;
 
-    if (sendQuotation) {
-      sendQuotation(sendingQuotation, sendMethod, customer)
-    }
-    
-    const updatedQuot = { ...sendingQuotation, status: "sent" }
-    updateQuotation(updatedQuot)
-    
-    alert(`Quotation sent via ${sendMethod} to ${customer.name}!`)
-    closeSend()
-  }
+    if (sendQuotation) sendQuotation(sendingQuotation, sendMethod, customer);
+    const updated = { ...sendingQuotation, status: "sent" as const };
+    updateQuotation(updated);
+    alert(`Quotation sent via ${sendMethod} to ${customer.name}!`);
+    closeSend();
+  };
 
   const addCustomItem = () => {
-    const customId = `custom-${Date.now()}`
-    setItems([
-      ...items,
-      { productId: customId, quantity: 1, price: 0, discount: 0, customTitle: "" },
-    ])
-  }
+    const customId = `custom-${Date.now()}`;
+    setItems([...items, { productId: customId, quantity: 1, price: 0, discount: 0, customTitle: "" }]);
+  };
 
   const updateItem = (productId: string, updates: Partial<QuotationItem>) => {
-    setItems(
-      items.map((i) => (i.productId === productId ? { ...i, ...updates } : i))
-    )
-  }
+    setItems(items.map(i => (i.productId === productId ? { ...i, ...updates } : i)));
+  };
 
   const removeItem = (productId: string) => {
-    setItems(items.filter((i) => i.productId !== productId))
-  }
+    setItems(items.filter(i => i.productId !== productId));
+  };
 
   const openCamera = async (productId: string) => {
     try {
-      setShowCamera(productId)
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true })
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-      }
-    } catch (error) {
-      console.error("Camera error:", error)
-      alert("Unable to access camera")
-      setShowCamera(null)
+      setShowCamera(productId);
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      if (videoRef.current) videoRef.current.srcObject = stream;
+    } catch (err) {
+      alert("Camera access denied");
+      setShowCamera(null);
     }
-  }
+  };
 
   const capturePhoto = (productId: string) => {
-    if (videoRef.current && canvasRef.current) {
-      const video = videoRef.current
-      const canvas = canvasRef.current
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
-      const ctx = canvas.getContext("2d")
-      if (ctx) {
-        ctx.drawImage(video, 0, 0)
-        const base64 = canvas.toDataURL("image/jpeg", 0.8)
-        updateItem(productId, { customPhoto: base64 })
-        closeCamera()
-      }
+    if (!videoRef.current || !canvasRef.current) return;
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.drawImage(video, 0, 0);
+      const base64 = canvas.toDataURL("image/jpeg", 0.8);
+      updateItem(productId, { customPhoto: base64 });
+      closeCamera();
     }
-  }
+  };
 
   const closeCamera = () => {
-    setShowCamera(null)
+    setShowCamera(null);
     if (videoRef.current?.srcObject) {
-      ;(videoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop())
+      (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
     }
-  }
+  };
 
-  const handleFileUpload = (
-    productId: string,
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const base64 = e.target?.result as string
-        updateItem(productId, { customPhoto: base64 })
-      }
-      reader.readAsDataURL(file)
-    }
- file
-  }
+  const handleFileUpload = (productId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => updateItem(productId, { customPhoto: ev.target?.result as string });
+    reader.readAsDataURL(file);
+  };
 
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity - item.discount,
-    0
-  )
-  const taxAmount = Math.round((subtotal * tax) / 100)
-  const total = subtotal + taxAmount - discount
+  const subtotal = items.reduce((s, i) => s + i.price * i.quantity - i.discount, 0);
+  const taxAmount = Math.round((subtotal * tax) / 100);
+  const total = subtotal + taxAmount - discount;
 
   const handleUpdateSubmit = () => {
-    if (!selectedCustomer || items.length === 0) {
-      alert("Please select a customer and add items")
-      return
+    if (!selectedCustomer || items.length === 0 || !editingQuotation) {
+      alert("Please select a customer and add items");
+      return;
     }
-
-    if (!editingQuotation) return
-
-    const updatedQuotation: Quotation = {
+    const updated: Quotation = {
       ...editingQuotation,
       customerId: selectedCustomer,
       items,
@@ -196,75 +164,73 @@ export default function HistoryPage() {
       discount,
       total,
       updatedAt: new Date().toISOString(),
-    }
+    };
+    updateQuotation(updated);
+    alert("Quotation updated!");
+    closeEdit();
+  };
 
-    updateQuotation(updatedQuotation)
-    alert("Quotation updated successfully!")
-    closeEdit()
-  }
-
-  // Send Modal
+  // === SEND MODAL ===
   if (sendingQuotation) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
-            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-800">
-                Send Quotation {sendingQuotation.id} - {getCustomerName(selectedCustomer)}
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
+            <div className="p-5 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-lg md:text-xl font-bold text-gray-800">
+                Send Quotation {sendingQuotation.id}
               </h2>
-              <button onClick={closeSend} className="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100">
-                <X className="w-6 h-6" />
+              <button onClick={closeSend} className="p-2 rounded-lg hover:bg-gray-100">
+                <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            <div className="p-6">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">Select Customer</h3>
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Customer</label>
                 <select
                   value={selectedCustomer}
                   onChange={(e) => setSelectedCustomer(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 >
-                  <option value="">Choose a customer...</option>
-                  {customers.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} - {c.phone}
-                    </option>
+                  <option value="">Select...</option>
+                  {customers.map(c => (
+                    <option key={c.id} value={c.id}>{c.name} - {c.phone}</option>
                   ))}
                 </select>
               </div>
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">Send Via</h3>
-                <div className="flex gap-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Send Via</label>
+                <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setSendMethod("whatsapp")}
-                    className={`flex-1 p-3 rounded-lg border ${sendMethod === "whatsapp" ? "bg-green-100 border-green-500 text-green-700" : "border-gray-200 text-gray-700"} hover:bg-gray-50 transition-all`}
+                    className={`p-3 rounded-lg border flex flex-col items-center gap-1 transition-all ${
+                      sendMethod === "whatsapp" ? "bg-green-100 border-green-500 text-green-700" : "border-gray-200"
+                    }`}
                   >
-                    <MessageCircle className="w-5 h-5 mx-auto mb-1" />
-                    WhatsApp
+                    <MessageCircle className="w-5 h-5" />
+                    <span className="text-xs font-medium">WhatsApp</span>
                   </button>
                   <button
                     onClick={() => setSendMethod("email")}
-                    className={`flex-1 p-3 rounded-lg border ${sendMethod === "email" ? "bg-blue-100 border-blue-500 text-blue-700" : "border-gray-200 text-gray-700"} hover:bg-gray-50 transition-all`}
+                    className={`p-3 rounded-lg border flex flex-col items-center gap-1 transition-all ${
+                      sendMethod === "email" ? "bg-blue-100 border-blue-500 text-blue-700" : "border-gray-200"
+                    }`}
                   >
-                    <Mail className="w-5 h-5 mx-auto mb-1" />
-                    Email
+                    <Mail className="w-5 h-5" />
+                    <span className="text-xs font-medium">Email</span>
                   </button>
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="flex gap-3">
                 <button
                   onClick={handleSend}
                   disabled={!selectedCustomer}
-                  className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-xl font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   <Send className="w-5 h-5" />
-                  Send Now
+                  Send
                 </button>
-                <button
-                  onClick={closeSend}
-                  className="w-full bg-gray-300 text-gray-700 px-4 py-3 rounded-xl hover:bg-gray-400 transition-all duration-200 font-semibold"
-                >
+                <button onClick={closeSend} className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold">
                   Cancel
                 </button>
               </div>
@@ -272,274 +238,240 @@ export default function HistoryPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
-  // Edit Modal
+  // === EDIT MODAL ===
   if (editingQuotation) {
-    const currentCustomer = customers.find(c => c.id === editingQuotation.customerId)
-    const displayCustomerName = currentCustomer?.name || `Customer ${editingQuotation.customerId}`
-
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-7xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
-            <div className="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
-              <h2 className="text-2xl font-bold text-gray-800">
-                Edit Quotation {editingQuotation.id} - {displayCustomerName}
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-7xl max-h-[92vh] overflow-y-auto shadow-2xl">
+            <div className="sticky top-0 bg-white p-5 border-b border-gray-200 flex justify-between items-center z-10">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+                Edit Quotation {editingQuotation.id}
               </h2>
-              <button onClick={closeEdit} className="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100">
-                <X className="w-6 h-6" />
+              <button onClick={closeEdit} className="p-2 rounded-lg hover:bg-gray-100">
+                <X className="w-6 h-6 text-gray-500" />
               </button>
             </div>
-            <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 space-y-6">
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <h3 className="text-lg font-semibold mb-4 text-gray-800">Select Customer</h3>
-                  <select
-                    value={selectedCustomer}
-                    onChange={(e) => setSelectedCustomer(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Choose a customer...</option>
-                    {customers.length === 0 ? (
-                      <option disabled>Loading customers...</option>
-                    ) : (
-                      customers.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} - {c.phone}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </div>
 
-                <button
-                  onClick={addCustomItem}
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-semibold flex items-center justify-center gap-2"
+            <div className="p-5 space-y-6">
+              {/* Customer */}
+              <div className="bg-gray-50 rounded-xl p-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Customer</label>
+                <select
+                  value={selectedCustomer}
+                  onChange={(e) => setSelectedCustomer(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 >
-                  <Plus className="w-5 h-5" />
-                  Add New Item
-                </button>
+                  <option value="">Select...</option>
+                  {customers.map(c => (
+                    <option key={c.id} value={c.id}>{c.name} - {c.phone}</option>
+                  ))}
+                </select>
+              </div>
 
-                {items.length > 0 && (
-                  <div className="space-y-4">
-                    {items.map((item) => {
-                      const product = products?.find((p) => p.id === item.productId)
-                      return (
-                        <div key={item.productId} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-                          <div className="flex justify-between items-start mb-3">
-                            <div className="flex-1 mr-2">
-                              {product ? (
-                                <h3 className="font-semibold text-gray-800">{product.title}</h3>
-                              ) : (
-                                <input
-                                  type="text"
-                                  value={item.customTitle || ""}
-                                  onChange={(e) =>
-                                    updateItem(item.productId, { customTitle: e.target.value })
-                                  }
-                                  placeholder="Enter item title"
-                                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-semibold"
-                                />
-                              )}
-                              <p className="text-sm text-gray-500">₹{item.price.toLocaleString()}</p>
-                            </div>
-                            <button
-                              onClick={() => removeItem(item.productId)}
-                              className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
+              {/* Add Item */}
+              <button
+                onClick={addCustomItem}
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
+              >
+                <Plus className="w-5 h-5" />
+                Add Item
+              </button>
+
+              {/* Items */}
+              {items.length > 0 && (
+                <div className="space-y-4">
+                  {items.map(item => {
+                    const product = products?.find(p => p.id === item.productId);
+                    return (
+                      <div key={item.productId} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex-1">
+                            {product ? (
+                              <h3 className="font-semibold text-gray-800">{product.title}</h3>
+                            ) : (
+                              <input
+                                type="text"
+                                value={item.customTitle || ""}
+                                onChange={(e) => updateItem(item.productId, { customTitle: e.target.value })}
+                                placeholder="Item title"
+                                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium"
+                              />
+                            )}
+                            <p className="text-xs text-gray-500 mt-1">₹{item.price.toLocaleString()}</p>
                           </div>
+                          <button
+                            onClick={() => removeItem(item.productId)}
+                            className="text-red-500 p-2 rounded-lg hover:bg-red-50"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
 
-                          {showCamera === item.productId && (
-                            <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-                              <div className="bg-white p-4 rounded-xl max-w-md w-full">
-                                <h4 className="text-lg font-semibold mb-3">Take Photo</h4>
-                                <video
-                                  ref={videoRef}
-                                  autoPlay
-                                  playsInline
-                                  className="w-full h-48 object-cover rounded mb-3"
-                                />
-                                <canvas ref={canvasRef} className="hidden" />
-                                <div className="flex gap-2 justify-center">
-                                  <button
-                                    onClick={() => capturePhoto(item.productId)}
-                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center gap-1"
-                                  >
-                                    <Camera className="w-4 h-4" />
-                                    Capture
-                                  </button>
-                                  <button
-                                    onClick={closeCamera}
-                                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
+                        {/* Camera Modal */}
+                        {showCamera === item.productId && (
+                          <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
+                            <div className="bg-white p-5 rounded-2xl w-full max-w-sm">
+                              <div className="flex justify-between items-center mb-3">
+                                <h4 className="font-semibold">Take Photo</h4>
+                                <button onClick={closeCamera} className="p-1 rounded hover:bg-gray-100">
+                                  <X className="w-5 h-5" />
+                                </button>
                               </div>
-                            </div>
-                          )}
-
-                          <div className="mb-4 pb-4 border-b border-gray-100">
-                            <label className="text-xs text-gray-500 block mb-2">Custom Photo</label>
-                            <div className="flex gap-3 items-start">
-                              {item.customPhoto ? (
-                                <div className="relative w-16 h-16 bg-gray-100 rounded border overflow-hidden">
-                                  <Image
-                                    src={item.customPhoto}
-                                    alt="Custom photo"
-                                    fill
-                                    className="object-cover"
-                                  />
-                                </div>
-                              ) : (
-                                <div className="w-16 h-16 bg-gray-100 rounded border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
-                                  No photo
-                                </div>
-                              )}
-                              <div className="flex-1 space-y-2">
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() => openCamera(item.productId)}
-                                    className="bg-green-500 text-white px-3 py-2 rounded text-sm flex items-center gap-1 hover:bg-green-600"
-                                  >
-                                    <Camera className="w-4 h-4" />
-                                    Take
-                                  </button>
-                                  <label className="bg-blue-500 text-white px-3 py-2 rounded text-sm cursor-pointer flex items-center gap-1 hover:bg-blue-600">
-                                    <Upload className="w-4 h-4" />
-                                    Upload
-                                    <input
-                                      type="file"
-                                      accept="image/*"
-                                      onChange={(e) => handleFileUpload(item.productId, e)}
-                                      className="hidden"
-                                    />
-                                  </label>
-                                </div>
-                                {item.customPhoto && (
-                                  <button
-                                    onClick={() => updateItem(item.productId, { customPhoto: undefined })}
-                                    className="text-red-500 text-xs hover:underline flex items-center gap-1"
-                                  >
-                                    <Trash2 className="w-3 h-3" />
-                                    Remove
-                                  </button>
-                                )}
+                              <video ref={videoRef} autoPlay playsInline className="w-full h-56 rounded-lg bg-gray-200" />
+                              <canvas ref={canvasRef} className="hidden" />
+                              <div className="flex gap-3 mt-4">
+                                <button
+                                  onClick={() => capturePhoto(item.productId)}
+                                  className="flex-1 bg-blue-500 text-white py-2.5 rounded-lg font-medium flex items-center justify-center gap-1"
+                                >
+                                  <Camera className="w-4 h-4" />
+                                  Capture
+                                </button>
+                                <button onClick={closeCamera} className="flex-1 bg-gray-300 text-gray-700 py-2.5 rounded-lg font-medium">
+                                  Cancel
+                                </button>
                               </div>
                             </div>
                           </div>
+                        )}
 
-                          <div className="grid grid-cols-3 gap-3">
-                            <div>
-                              <label className="text-xs text-gray-500 block mb-1">Qty</label>
-                              <input
-                                type="number"
-                                min="1"
-                                value={item.quantity}
-                                onChange={(e) => updateItem(item.productId, { quantity: parseInt(e.target.value) || 1 })}
-                                className="w-full px-2 py-1 border border-gray-200 rounded text-sm"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-gray-500 block mb-1">Price</label>
-                              <input
-                                type="number"
-                                value={item.price}
-                                onChange={(e) => updateItem(item.productId, { price: parseInt(e.target.value) || 0 })}
-                                className="w-full px-2 py-1 border border-gray-200 rounded text-sm"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-gray-500 block mb-1">Discount</label>
-                              <input
-                                type="number"
-                                min="0"
-                                value={item.discount}
-                                onChange={(e) => updateItem(item.productId, { discount: parseInt(e.target.value) || 0 })}
-                                className="w-full px-2 py-1 border border-gray-200 rounded text-sm"
-                              />
+                        {/* Photo Upload */}
+                        <div className="mb-4 pb-4 border-b border-gray-100">
+                          <label className="text-xs text-gray-500 block mb-2">Custom Photo</label>
+                          <div className="flex gap-3 items-start">
+                            {item.customPhoto ? (
+                              <div className="relative w-14 h-14 rounded-lg overflow-hidden border">
+                                <Image src={item.customPhoto} alt="" fill className="object-cover" />
+                              </div>
+                            ) : (
+                              <div className="w-14 h-14 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
+                                No photo
+                              </div>
+                            )}
+                            <div className="flex-1 space-y-2">
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => openCamera(item.productId)}
+                                  className="flex-1 bg-green-500 text-white py-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1"
+                                >
+                                  <Camera className="w-4 h-4" />
+                                  Camera
+                                </button>
+                                <label className="flex-1 bg-blue-500 text-white py-2 rounded-lg text-xs font-medium cursor-pointer flex items-center justify-center gap-1">
+                                  <Upload className="w-4 h-4" />
+                                  Upload
+                                  <input type="file" accept="image/*" onChange={(e) => handleFileUpload(item.productId, e)} className="hidden" />
+                                </label>
+                              </div>
+                              {item.customPhoto && (
+                                <button
+                                  onClick={() => updateItem(item.productId, { customPhoto: undefined })}
+                                  className="text-red-500 text-xs flex items-center gap-1"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                  Remove
+                                </button>
+                              )}
                             </div>
                           </div>
                         </div>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
 
-              <div className="lg:col-span-1">
-                <div className="bg-gray-50 rounded-xl p-4 sticky top-0">
-                  <h3 className="text-lg font-semibold mb-4 text-gray-800">Summary</h3>
-                  <div className="space-y-3 mb-6">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Subtotal</span>
-                      <span className="font-semibold">₹{subtotal.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Tax ({tax}%)</span>
-                      <span className="font-semibold">₹{taxAmount.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">Discount</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={discount}
-                        onChange={(e) => setDiscount(parseInt(e.target.value) || 0)}
-                        className="w-20 px-2 py-1 border border-gray-200 rounded text-right"
-                      />
-                    </div>
+                        {/* Inputs */}
+                        <div className="grid grid-cols-3 gap-3">
+                          {["Qty", "Price", "Discount"].map((label, i) => {
+                            const key = ["quantity", "price", "discount"][i] as keyof QuotationItem;
+                            return (
+                              <div key={label}>
+                                <label className="text-xs text-gray-500 block mb-1">{label}</label>
+                                <input
+                                  type="number"
+                                  min={i === 0 ? "1" : "0"}
+                                  value={item[key] as number}
+                                  onChange={(e) => updateItem(item.productId, { [key]: parseInt(e.target.value) || 0 })}
+                                  className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Summary */}
+              <div className="bg-gray-50 rounded-xl p-4 sticky bottom-0 mt-6">
+                <h3 className="font-semibold mb-3 text-gray-800">Summary</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-medium">₹{subtotal.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between mb-6 text-lg">
-                    <span className="font-bold text-gray-800">Total</span>
-                    <span className="text-2xl font-bold text-blue-600">₹{total.toLocaleString()}</span>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Tax (18%)</span>
+                    <span className="font-medium">₹{taxAmount.toLocaleString()}</span>
                   </div>
-                  <div className="space-y-2">
-                    <button
-                      onClick={handleUpdateSubmit}
-                      className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 font-semibold"
-                    >
-                      Update Quotation
-                    </button>
-                    <button
-                      onClick={closeEdit}
-                      className="w-full bg-gray-300 text-gray-700 px-4 py-3 rounded-xl hover:bg-gray-400 transition-all duration-200 font-semibold"
-                    >
-                      Cancel
-                    </button>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Discount</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={discount}
+                      onChange={(e) => setDiscount(parseInt(e.target.value) || 0)}
+                      className="w-20 px-2 py-1 border border-gray-200 rounded text-right text-sm"
+                    />
                   </div>
+                </div>
+                <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-200">
+                  <span className="font-bold text-gray-800">Total</span>
+                  <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+                    ₹{total.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex gap-3 mt-4">
+                  <button
+                    onClick={handleUpdateSubmit}
+                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-xl font-semibold"
+                  >
+                    Update
+                  </button>
+                  <button onClick={closeEdit} className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold">
+                    Cancel
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
+  // === MAIN LIST VIEW ===
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
-            <History className="w-8 h-8" />
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
+            <History className="w-7 h-7 md:w-8 md:h-8" />
             Quotation History
           </h1>
         </div>
 
-        <div className="flex justify-end mb-6">
+        <div className="flex justify-end mb-5">
           <div className="relative">
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 bg-white/50 text-sm font-medium"
+              className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/80 text-sm font-medium"
             >
-              <option value="all">All Quotations</option>
+              <option value="all">All</option>
               <option value="draft">Draft</option>
               <option value="sent">Sent</option>
               <option value="approved">Approved</option>
@@ -548,9 +480,10 @@ export default function HistoryPage() {
           </div>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm border border-white/20 rounded-2xl shadow-lg overflow-hidden">
+        {/* Desktop Table */}
+        <div className="hidden md:block bg-white/80 backdrop-blur-sm border border-white/20 rounded-2xl shadow-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-800 flex items-center gap-2">
               <History className="w-5 h-5 text-green-500" />
               Quotations ({filtered.length})
             </h2>
@@ -559,77 +492,45 @@ export default function HistoryPage() {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  {["ID", "Customer", "Items", "Amount", "Status", "Date", "Actions"].map(h => (
+                    <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {filtered.map((quot, index) => (
-                  <tr key={quot.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition-colors duration-200`}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-mono text-gray-900">{quot.id}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-8 w-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                          <span className="text-white font-semibold text-xs">{getCustomerName(quot.customerId).charAt(0).toUpperCase()}</span>
+                {filtered.map((quot, i) => (
+                  <tr key={quot.id} className={`${i % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-100 transition`}>
+                    <td className="px-6 py-4 font-mono text-sm text-gray-900">{quot.id}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                          {getCustomerName(quot.customerId)[0]}
                         </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{getCustomerName(quot.customerId)}</div>
-                        </div>
+                        <span className="text-sm font-medium text-gray-900">{getCustomerName(quot.customerId)}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      <div className="flex items-center">
-                        <User className="w-4 h-4 text-gray-400 mr-2" />
-                        {quot.items.length} items
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      <div className="flex items-center">
-                        <DollarSign className="w-4 h-4 text-green-600 mr-2" />
-                        ₹{quot.total.toLocaleString()}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(quot.status)}`}
-                      >
+                    <td className="px-6 py-4 text-sm text-gray-600">{quot.items.length} items</td>
+                    <td className="px-6 py-4 font-medium text-gray-900">₹{quot.total.toLocaleString()}</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(quot.status)}`}>
                         {getStatusIcon(quot.status)}
                         {quot.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      <div className="flex items-center">
-                        <Clock className="w-4 h-4 text-gray-400 mr-2" />
-                        {new Date(quot.createdAt).toLocaleDateString()}
-                      </div>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {new Date(quot.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button 
-                          onClick={() => openEdit(quot)}
-                          className="text-green-600 hover:text-green-900 p-2 rounded-lg hover:bg-green-50 transition-all duration-200"
-                          title="Edit"
-                        >
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2">
+                        <button onClick={() => openEdit(quot)} className="text-green-600 hover:text-green-800 p-1.5 rounded hover:bg-green-50">
                           <Edit3 className="w-4 h-4" />
                         </button>
-                        <button 
-                          onClick={() => openSend(quot)}
-                          className="text-orange-600 hover:text-orange-900 p-2 rounded-lg hover:bg-orange-50 transition-all duration-200"
-                          title="Send"
-                        >
+                        <button onClick={() => openSend(quot)} className="text-orange-600 hover:text-orange-800 p-1.5 rounded hover:bg-orange-50">
                           <Send className="w-4 h-4" />
                         </button>
-                        <button 
-                          className="text-blue-600 hover:text-blue-900 p-2 rounded-lg hover:bg-blue-50 transition-all duration-200"
-                          title="View"
-                        >
+                        <button className="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50">
                           <Eye className="w-4 h-4" />
                         </button>
                       </div>
@@ -639,15 +540,58 @@ export default function HistoryPage() {
               </tbody>
             </table>
           </div>
-          {filtered.length === 0 && (
-            <div className="text-center py-12">
-              <History className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No quotations yet</h3>
-              <p className="text-gray-500 mb-6">Your quotation history will appear here once you create some.</p>
-            </div>
-          )}
         </div>
+
+        {/* Mobile Cards */}
+        <div className="md:hidden space-y-4">
+          {filtered.map((quot) => (
+            <div key={quot.id} className="bg-white/80 backdrop-blur-sm border border-white/20 rounded-2xl p-4 shadow-lg">
+              <div className="flex justify-between items-start mb-3">
+                <div className="font-mono text-sm font-semibold text-gray-900">{quot.id}</div>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(quot.status)} flex items-center gap-1`}>
+                  {getStatusIcon(quot.status)}
+                  {quot.status}
+                </span>
+              </div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                  {getCustomerName(quot.customerId)[0]}
+                </div>
+                <div>
+                  <div className="font-medium text-gray-900">{getCustomerName(quot.customerId)}</div>
+                  <div className="text-xs text-gray-500">{new Date(quot.createdAt).toLocaleDateString()}</div>
+                </div>
+              </div>
+              <div className="flex justify-between text-sm mb-3">
+                <span className="text-gray-600">{quot.items.length} items</span>
+                <span className="font-semibold text-gray-900">₹{quot.total.toLocaleString()}</span>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => openEdit(quot)} className="flex-1 bg-green-100 text-green-700 py-2 rounded-lg font-medium text-xs flex items-center justify-center gap-1">
+                  <Edit3 className="w-4 h-4" />
+                  Edit
+                </button>
+                <button onClick={() => openSend(quot)} className="flex-1 bg-orange-100 text-orange-700 py-2 rounded-lg font-medium text-xs flex items-center justify-center gap-1">
+                  <Send className="w-4 h-4" />
+                  Send
+                </button>
+                <button className="flex-1 bg-blue-100 text-blue-700 py-2 rounded-lg font-medium text-xs flex items-center justify-center gap-1">
+                  <Eye className="w-4 h-4" />
+                  View
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filtered.length === 0 && (
+          <div className="text-center py-16">
+            <History className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No quotations yet</h3>
+            <p className="text-gray-500">Your history will appear here.</p>
+          </div>
+        )}
       </div>
     </div>
-  )
+  );
 }
