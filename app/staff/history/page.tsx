@@ -17,6 +17,7 @@ export default function HistoryPage() {
 
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [editingQuotation, setEditingQuotation] = useState<Quotation | null>(null);
+  const [viewingQuotation, setViewingQuotation] = useState<Quotation | null>(null); // View Modal
   const [sendingQuotation, setSendingQuotation] = useState<Quotation | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [sendMethod, setSendMethod] = useState<"whatsapp" | "email">("whatsapp");
@@ -75,6 +76,9 @@ export default function HistoryPage() {
     setDiscount(0);
     closeCamera();
   };
+
+  const openView = (quot: Quotation) => setViewingQuotation(quot); // View Modal
+  const closeView = () => setViewingQuotation(null);
 
   const openSend = (quot: Quotation) => {
     setSendingQuotation(quot);
@@ -184,6 +188,135 @@ export default function HistoryPage() {
     alert("Quotation updated!");
     closeEdit();
   };
+
+  // === VIEW MODAL ===
+  if (viewingQuotation) {
+    const customer = getCustomer(viewingQuotation.customerId);
+    const items = viewingQuotation.items;
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-7xl max-h-[92vh] overflow-y-auto shadow-2xl">
+            <div className="sticky top-0 bg-white p-5 border-b border-gray-200 flex justify-between items-center z-10">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <Eye className="w-6 h-6 text-blue-600" />
+                Quotation {viewingQuotation.id}
+              </h2>
+              <button onClick={closeView} className="p-2 rounded-lg hover:bg-gray-100">
+                <X className="w-6 h-6 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-6">
+              {/* Customer Info */}
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4">
+                <h3 className="font-semibold text-gray-800 mb-2">Customer</h3>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                    {customer?.name[0] || "?"}
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">{customer?.name || "Unknown"}</p>
+                    <p className="text-sm text-gray-600">{customer?.phone || "No phone"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Items */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-gray-800">Items</h3>
+                {items.map(item => {
+                  const product = products?.find(p => p.id === item.productId);
+                  const title = product?.title || item.customTitle || "Custom Item";
+
+                  return (
+                    <div key={item.productId} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-800">{title}</h4>
+                          <p className="text-xs text-gray-500 mt-1">₹{item.price.toLocaleString()} × {item.quantity}</p>
+                          {item.discount > 0 && (
+                            <p className="text-xs text-green-600">Discount: ₹{item.discount}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Custom Photo */}
+                      {item.customPhoto && (
+                        <div className="mb-3">
+                          <p className="text-xs text-gray-500 mb-2">Attached Photo</p>
+                          <div className="relative w-full h-48 rounded-lg overflow-hidden border">
+                            <Image
+                              src={item.customPhoto}
+                              alt="Item photo"
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Pricing */}
+                      <div className="grid grid-cols-3 gap-3 text-sm">
+                        <div>
+                          <span className="text-gray-500">Qty</span>
+                          <p className="font-medium">{item.quantity}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Price</span>
+                          <p className="font-medium">₹{item.price.toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Total</span>
+                          <p className="font-medium text-green-700">
+                            ₹{((item.price * item.quantity) - (item.discount || 0)).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Summary */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-5 sticky bottom-0 mt-6">
+                <h3 className="font-bold text-gray-800 mb-3">Summary</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-medium">₹{viewingQuotation.subtotal.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Tax (18%)</span>
+                    <span className="font-medium">₹{viewingQuotation.tax.toLocaleString()}</span>
+                  </div>
+                  {viewingQuotation.discount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Discount</span>
+                      <span className="font-medium text-red-600">-₹{viewingQuotation.discount.toLocaleString()}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-300">
+                  <span className="font-bold text-gray-800">Total Amount</span>
+                  <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    ₹{viewingQuotation.total.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex gap-2 text-xs text-gray-500 mt-3">
+                  <span>Created: {new Date(viewingQuotation.createdAt).toLocaleString()}</span>
+                  {viewingQuotation.updatedAt && viewingQuotation.updatedAt !== viewingQuotation.createdAt && (
+                    <span>• Updated: {new Date(viewingQuotation.updatedAt).toLocaleString()}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // === SEND MODAL ===
   if (sendingQuotation) {
@@ -545,7 +678,7 @@ export default function HistoryPage() {
                         <button onClick={() => openSend(quot)} className="text-orange-600 hover:text-orange-800 p-1.5 rounded hover:bg-orange-50">
                           <Send className="w-4 h-4" />
                         </button>
-                        <button className="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50">
+                        <button onClick={() => openView(quot)} className="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50">
                           <Eye className="w-4 h-4" />
                         </button>
                       </div>
@@ -590,7 +723,7 @@ export default function HistoryPage() {
                   <Send className="w-4 h-4" />
                   Send
                 </button>
-                <button className="flex-1 bg-blue-100 text-blue-700 py-2 rounded-lg font-medium text-xs flex items-center justify-center gap-1">
+                <button onClick={() => openView(quot)} className="flex-1 bg-blue-100 text-blue-700 py-2 rounded-lg font-medium text-xs flex items-center justify-center gap-1">
                   <Eye className="w-4 h-4" />
                   View
                 </button>

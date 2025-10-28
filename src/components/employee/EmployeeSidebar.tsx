@@ -45,9 +45,9 @@ export function EmployeeSidebar() {
       {/* ───── Sidebar ───── */}
       <aside
         className={`
-          fixed inset-y-0 left-0 z-40 flex flex-col w-64 h-screen
-          bg-white/80 backdrop-blur-sm border-r border-white/20 shadow-lg
-          transition-transform duration-300 ease-in-out transform
+          fixed inset-y-0 left-0 z-40 flex flex-col w-56 h-screen
+          bg-white/95 backdrop-blur-sm border-r border-gray-200 shadow-lg
+          transition-all duration-300 ease-in-out transform
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
           md:relative
         `}
