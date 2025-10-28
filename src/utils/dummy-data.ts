@@ -1,4 +1,4 @@
-import type { Customer, Product, Quotation } from "@/types/index"
+import type { Customer, Product, Quotation } from "@/src/types/index"
 
 export const DUMMY_PRODUCTS: Product[] = [
   {

@@ -4,7 +4,7 @@ import type React from "react";
 import { useAdmin } from "@/src/contexts/AdminContext";
 import { useEmployee } from "@/src/contexts/EmployeeContext";
 import { useAuth } from "@/src/contexts/AuthContext";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Plus,
   User,
@@ -21,7 +21,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Image from "next/image";
-import type { Quotation, QuotationItem } from "@/types/index";
+import type { Quotation, QuotationItem } from "@/src/types/index";
 
 export default function CustomersPage() {
   const { customers, addCustomer, updateCustomer, deleteCustomer } = useAdmin();
@@ -41,6 +41,13 @@ export default function CustomersPage() {
     email: "",
   });
 
+  // Fallback persist in case provider effect doesn't run for any reason
+  useEffect(() => {
+    try {
+      localStorage.setItem("admin-customers", JSON.stringify(customers));
+    } catch {}
+  }, [customers]);
+
   /* ────────────────────── Add / Edit Customer ────────────────────── */
   const resetForm = () => {
     setFormData({ name: "", phone: "", whatsapp: "", email: "" });
@@ -57,8 +64,13 @@ export default function CustomersPage() {
 
     if (editingCustomer) {
       // Update existing
-      const updated = { ...editingCustomer, ...formData };
-      updateCustomer(updated);
+      updateCustomer(editingCustomer.id, formData);
+      try {
+        const next = customers.map((c) =>
+          c.id === editingCustomer.id ? { ...c, ...formData } : c
+        );
+        localStorage.setItem("admin-customers", JSON.stringify(next));
+      } catch {}
       alert("Customer updated!");
     } else {
       // Add new
@@ -66,10 +78,14 @@ export default function CustomersPage() {
         id: `cust-${Date.now()}`,
         ...formData,
         tags: ["new"],
-        assignedEmployeeId: "emp-1",
+        assignedEmployeeId: user?.id ?? "emp-1",
         createdAt: new Date().toISOString(),
       };
       addCustomer(newCustomer);
+      try {
+        const next = [...customers, newCustomer];
+        localStorage.setItem("admin-customers", JSON.stringify(next));
+      } catch {}
       alert("Customer added!");
     }
     resetForm();
@@ -88,6 +104,10 @@ export default function CustomersPage() {
   const confirmDelete = (customer: any) => {
     if (window.confirm(`Delete ${customer.name}? This cannot be undone.`)) {
       deleteCustomer(customer.id);
+      try {
+        const next = customers.filter((c) => c.id !== customer.id);
+        localStorage.setItem("admin-customers", JSON.stringify(next));
+      } catch {}
       alert("Customer deleted");
     }
   };

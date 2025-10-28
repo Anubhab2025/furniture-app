@@ -43,9 +43,7 @@ export default function StaffLayout({
             <EmployeeSidebar />
           </div>
           <main className="flex-1 min-h-screen overflow-y-auto bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 ml-0 md:ml-64 pt-16 md:pt-6">
-            <div className="max-w-7xl mx-auto w-full">
-              {children}
-            </div>
+            <div className="max-w-7xl mx-auto w-full">{children}</div>
           </main>
         </div>
       </EmployeeProvider>

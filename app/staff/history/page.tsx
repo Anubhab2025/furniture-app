@@ -1,6 +1,7 @@
+// src/app/staff/history/page.tsx
 "use client";
 
-import type { Quotation, QuotationItem } from "@/types/index";
+import type { Quotation, QuotationItem, Customer, Product } from "@/types/index";
 import { useEmployee } from "@/src/contexts/EmployeeContext";
 import { useAdmin } from "@/src/contexts/AdminContext";
 import { useState, useRef, useEffect } from "react";
@@ -13,6 +14,7 @@ import Image from "next/image";
 export default function HistoryPage() {
   const { quotations, updateQuotation, sendQuotation } = useEmployee();
   const { customers, products } = useAdmin();
+
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [editingQuotation, setEditingQuotation] = useState<Quotation | null>(null);
   const [sendingQuotation, setSendingQuotation] = useState<Quotation | null>(null);
@@ -25,7 +27,9 @@ export default function HistoryPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const filtered = filterStatus === "all" ? quotations : quotations.filter((q) => q.status === filterStatus);
+  const filtered = filterStatus === "all"
+    ? quotations
+    : quotations.filter((q) => q.status === filterStatus);
 
   useEffect(() => {
     if (editingQuotation) {
@@ -59,15 +63,17 @@ export default function HistoryPage() {
     return customer ? customer.name : `Customer ${customerId}`;
   };
 
+  const getCustomer = (customerId: string): Customer | undefined => {
+    return customers.find(c => c.id === customerId);
+  };
+
   const openEdit = (quot: Quotation) => setEditingQuotation(quot);
   const closeEdit = () => {
     setEditingQuotation(null);
     setSelectedCustomer("");
     setItems([]);
     setDiscount(0);
-    if (videoRef.current?.srcObject) {
-      (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
-    }
+    closeCamera();
   };
 
   const openSend = (quot: Quotation) => {
@@ -82,19 +88,26 @@ export default function HistoryPage() {
 
   const handleSend = () => {
     if (!sendingQuotation || !selectedCustomer) return;
-    const customer = customers.find(c => c.id === selectedCustomer);
+    const customer = getCustomer(selectedCustomer);
     if (!customer) return;
 
-    if (sendQuotation) sendQuotation(sendingQuotation, sendMethod, customer);
+    sendQuotation(sendingQuotation, sendMethod, customer);
     const updated = { ...sendingQuotation, status: "sent" as const };
-    updateQuotation(updated);
+    updateQuotation(updated.id, updated);
+
     alert(`Quotation sent via ${sendMethod} to ${customer.name}!`);
     closeSend();
   };
 
   const addCustomItem = () => {
     const customId = `custom-${Date.now()}`;
-    setItems([...items, { productId: customId, quantity: 1, price: 0, discount: 0, customTitle: "" }]);
+    setItems([...items, {
+      productId: customId,
+      quantity: 1,
+      price: 0,
+      discount: 0,
+      customTitle: "",
+    }]);
   };
 
   const updateItem = (productId: string, updates: Partial<QuotationItem>) => {
@@ -146,7 +159,7 @@ export default function HistoryPage() {
     reader.readAsDataURL(file);
   };
 
-  const subtotal = items.reduce((s, i) => s + i.price * i.quantity - i.discount, 0);
+  const subtotal = items.reduce((s, i) => s + i.price * i.quantity - (i.discount || 0), 0);
   const taxAmount = Math.round((subtotal * tax) / 100);
   const total = subtotal + taxAmount - discount;
 
@@ -155,6 +168,7 @@ export default function HistoryPage() {
       alert("Please select a customer and add items");
       return;
     }
+
     const updated: Quotation = {
       ...editingQuotation,
       customerId: selectedCustomer,
@@ -165,6 +179,7 @@ export default function HistoryPage() {
       total,
       updatedAt: new Date().toISOString(),
     };
+
     updateQuotation(updated);
     alert("Quotation updated!");
     closeEdit();

@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
-import type { Quotation } from "@/types/index"
+import type { Quotation } from "@/src/types/index"
 import { DUMMY_QUOTATIONS } from "@/src/utils/dummy-data"
 
 interface CustomerContextType {
