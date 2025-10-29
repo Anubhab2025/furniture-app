@@ -173,10 +173,10 @@ export default function HistoryPage() {
       return;
     }
 
-    const updated: Quotation = {
+    const updatedQuotation = {
       ...editingQuotation,
       customerId: selectedCustomer,
-      items,
+      items: [...items],
       subtotal,
       tax: taxAmount,
       discount,
@@ -184,9 +184,12 @@ export default function HistoryPage() {
       updatedAt: new Date().toISOString(),
     };
 
-    updateQuotation(updated);
-    alert("Quotation updated!");
+    // Update the quotation in the context
+    updateQuotation(editingQuotation.id, updatedQuotation);
+    
+    // Close the edit modal and reset form
     closeEdit();
+    alert("Quotation updated successfully!");
   };
 
   // === VIEW MODAL ===
