@@ -13,9 +13,16 @@ import Image from "next/image";
 
 export default function HistoryPage() {
   const { quotations, updateQuotation, sendQuotation } = useEmployee();
-  const { customers, products } = useAdmin();
+  const { customers, products, loading } = useAdmin();
 
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (customers.length > 0) {
+      setIsLoading(false);
+    }
+  }, [customers]);
   const [editingQuotation, setEditingQuotation] = useState<Quotation | null>(null);
   const [viewingQuotation, setViewingQuotation] = useState<Quotation | null>(null); // View Modal
   const [sendingQuotation, setSendingQuotation] = useState<Quotation | null>(null);
@@ -60,8 +67,13 @@ export default function HistoryPage() {
   };
 
   const getCustomerName = (customerId: string) => {
+    if (!customers.length) return 'Loading...';
     const customer = customers.find(c => c.id === customerId);
-    return customer ? customer.name : `Customer ${customerId}`;
+    if (!customer) {
+      console.warn(`Customer with ID ${customerId} not found`);
+      return `Customer ${customerId}`;
+    }
+    return customer.name;
   };
 
   const getCustomer = (customerId: string): Customer | undefined => {
