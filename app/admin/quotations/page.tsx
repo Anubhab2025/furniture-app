@@ -53,7 +53,8 @@ export default function QuotationsPage() {
           All Quotations
         </h1>
 
-        <div className="bg-white/80 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl overflow-hidden">
+        {/* Desktop Table View - Hidden on Mobile */}
+        <div className="hidden md:block bg-white/80 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
@@ -130,6 +131,82 @@ export default function QuotationsPage() {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Mobile Card View - Hidden on Desktop */}
+        <div className="md:hidden space-y-4">
+          {quotations.map((quot, i) => (
+            <div
+              key={quot.id}
+              className={`bg-white/90 backdrop-blur-sm border border-white/30 rounded-2xl shadow-lg p-5 transition-all ${
+                i % 2 === 0 ? "bg-white" : "bg-slate-50"
+              }`}
+            >
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    {getCustomerName(quot.customerId)[0]}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-900 text-sm">
+                      {getCustomerName(quot.customerId)}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {getCustomerPhone(quot.customerId)}
+                    </p>
+                  </div>
+                </div>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    quot.status === "approved"
+                      ? "bg-green-100 text-green-800"
+                      : quot.status === "sent"
+                      ? "bg-blue-100 text-blue-800"
+                      : quot.status === "rejected"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-amber-100 text-amber-800"
+                  }`}
+                >
+                  {quot.status}
+                </span>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-slate-600">ID</span>
+                  <span className="font-mono text-slate-900">{quot.id}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600 flex items-center gap-1">
+                    <DollarSign className="w-4 h-4" />
+                    Amount
+                  </span>
+                  <span className="font-semibold text-slate-900">
+                    ₹{quot.total.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600 flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    Date
+                  </span>
+                  <span className="text-slate-700">
+                    {new Date(quot.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-200">
+                <button
+                  onClick={() => setSelectedQuotation(quot)}
+                  className="w-full flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm transition py-2"
+                >
+                  <Eye className="w-4 h-4" />
+                  View Details
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Empty State */}

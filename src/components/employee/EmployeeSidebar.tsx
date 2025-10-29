@@ -90,7 +90,7 @@ export function EmployeeSidebar() {
           </nav>
 
           {/* Logout */}
-          <div className="border-t border-gray-100 px-3 pb-20 pt-4 mt-auto">
+          <div className="border-t border-gray-100 px-3 pb-30 pt-4 mt-auto">
             <button
               onClick={() => { logout(); close(); }}
               className={`

@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { createContext, useContext, useEffect, useState } from "react"
-import type { User, AuthContextType } from "@/src/types/index"
+import type React from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import type { User, AuthContextType } from "@/src/types/index";
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Dummy users for demo
 const DUMMY_USERS: Record<string, User & { password: string }> = {
@@ -39,60 +39,66 @@ const DUMMY_USERS: Record<string, User & { password: string }> = {
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=customer",
     createdAt: new Date().toISOString(),
   },
-}
+};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | undefined>(undefined)
-  const [isLoading, setIsLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | undefined>(
+    undefined
+  );
+  const [isLoading, setIsLoading] = useState(true);
 
   // Load user from localStorage on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem("currentUser")
+    const storedUser = localStorage.getItem("currentUser");
     if (storedUser) {
       try {
-        const parsedUser = JSON.parse(storedUser)
-        setUser(parsedUser)
-        setIsAuthenticated(true)
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setIsAuthenticated(true);
       } catch (error) {
-        console.error("Failed to parse stored user:", error)
-        setIsAuthenticated(false)
+        console.error("Failed to parse stored user:", error);
+        setIsAuthenticated(false);
       }
     } else {
-      setIsAuthenticated(false)
+      setIsAuthenticated(false);
     }
-    setIsLoading(false)
-  }, [])
+    setIsLoading(false);
+  }, []);
 
   const login = (email: string, password: string) => {
-    const dummyUser = DUMMY_USERS[email]
+    const dummyUser = DUMMY_USERS[email];
     if (dummyUser && dummyUser.password === password) {
-      const { password: _, ...userWithoutPassword } = dummyUser
-      setUser(userWithoutPassword)
-      setIsAuthenticated(true)
-      localStorage.setItem("currentUser", JSON.stringify(userWithoutPassword))
-      console.log("✅ Login successful:", userWithoutPassword)
+      const { password: _, ...userWithoutPassword } = dummyUser;
+      setUser(userWithoutPassword);
+      setIsAuthenticated(true);
+      localStorage.setItem("currentUser", JSON.stringify(userWithoutPassword));
+      console.log("✅ Login successful:", userWithoutPassword);
     } else {
-      console.log("❌ Login failed for:", email)
-      throw new Error("Invalid credentials")
+      console.log("❌ Login failed for:", email);
+      throw new Error("Invalid credentials");
     }
-  }
+  };
 
   const logout = () => {
-    setUser(null)
-    setIsAuthenticated(false)
-    localStorage.removeItem("currentUser")
-  }
+    setUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem("currentUser");
+  };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, login, logout, setUser }}>{children}</AuthContext.Provider>
-  )
+    <AuthContext.Provider
+      value={{ user, isAuthenticated, isLoading, login, logout, setUser }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within AuthProvider")
+    throw new Error("useAuth must be used within AuthProvider");
   }
-  return context
+  return context;
 }

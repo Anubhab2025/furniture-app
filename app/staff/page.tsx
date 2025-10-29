@@ -4,6 +4,21 @@ import { useEmployee } from "@/src/contexts/EmployeeContext";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import {
+  Clock,
+  Send,
+  CheckCircle,
+  XCircle,
+  FileText,
+  Plus,
+  TrendingUp,
+  Users,
+  Copy,
+  BarChart3,
+  Calendar,
+  Search,
+  Filter,
+} from "lucide-react";
 
 export default function StaffDashboard() {
   const { quotations } = useEmployee();
@@ -51,54 +66,47 @@ export default function StaffDashboard() {
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       return new Date(q.createdAt) > sevenDaysAgo;
     })
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5);
 
   const quickActions = [
     {
       label: "Create Quotation",
-      icon: "Create",
+      icon: <Plus className="w-5 h-5" />,
       href: "/staff/create-quotation",
       color: "from-blue-500 to-purple-600",
     },
     {
       label: "View Customers",
-      icon: "Customers",
+      icon: <Users className="w-5 h-5" />,
       href: "/staff/customers",
       color: "from-green-500 to-teal-600",
     },
     {
       label: "Templates",
-      icon: "Templates",
+      icon: <Copy className="w-5 h-5" />,
       href: "/staff/templates",
       color: "from-orange-500 to-red-600",
     },
     {
       label: "Reports",
-      icon: "Reports",
+      icon: <BarChart3 className="w-5 h-5" />,
       href: "/staff/reports",
       color: "from-purple-500 to-pink-600",
     },
   ];
 
-  // Responsive container classes
-  const containerClass =
-    "min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8";
-  const innerClass = "max-w-7xl mx-auto";
-
   return (
-    <div className={containerClass}>
-      <div className={innerClass}>
-        {/* Header */}
-        <div className="mb-6 md:mb-8">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header - Mobile Optimized */}
+        <div className="mb-6">
+          <div className="flex flex-col gap-3">
             <div>
-              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
-                <span className="w-8 h-8 md:w-10 md:h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm md:text-base">
-                  Profile
-                </span>
+              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Welcome, {user?.name}
               </h1>
-              <p className="text-sm md:text-base text-slate-600 mt-1">
+              <p className="text-sm text-slate-600 mt-1">
                 {currentTime.toLocaleDateString("en-US", {
                   weekday: "long",
                   year: "numeric",
@@ -112,8 +120,8 @@ export default function StaffDashboard() {
                 })}
               </p>
             </div>
-            <div className="bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl p-3 md:p-4 shadow-sm text-right">
-              <p className="text-xs md:text-sm text-slate-600">Employee ID</p>
+            <div className="bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-sm">
+              <p className="text-slate-600">Employee ID</p>
               <p className="font-semibold text-slate-900">
                 {user?.employeeId || "EMP001"}
               </p>
@@ -121,65 +129,63 @@ export default function StaffDashboard() {
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 md:mb-8">
+        {/* Quick Stats - Mobile Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
           {[
-            {
-              label: "Today's Quotations",
-              value: todayQuotations.length,
-            },
-            {
-              label: "Pending Drafts",
-              value: pendingQuotations.length,
-            },
-            {
-              label: "Sent",
-              value: sentQuotations.length,
-            },
-            {
-              label: "Approved",
-              value: approvedQuotations.length,
-            },
-            {
-              label: "Rejected",
-              value: rejectedQuotations.length,
-            },
-            {
-              label: "Monthly Revenue",
-              value: `₹${monthlyRevenue.toLocaleString()}`,
-            },
+            { label: "Today", value: todayQuotations.length, icon: <Calendar className="w-4 h-4" /> },
+            { label: "Drafts", value: pendingQuotations.length, icon: <Clock className="w-4 h-4" /> },
+            { label: "Sent", value: sentQuotations.length, icon: <Send className="w-4 h-4" /> },
+            { label: "Approved", value: approvedQuotations.length, icon: <CheckCircle className="w-4 h-4" /> },
+            { label: "Rejected", value: rejectedQuotations.length, icon: <XCircle className="w-4 h-4" /> },
+            { label: "Monthly", value: `₹${monthlyRevenue.toLocaleString()}`, icon: <TrendingUp className="w-4 h-4" /> },
           ].map((stat) => (
             <div
               key={stat.label}
-              className="bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl p-4 md:p-6 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer"
+              className="bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl p-3 text-center shadow-sm"
             >
-              <div>
-                <p className="text-xs md:text-sm text-slate-600 mb-1">
-                  {stat.label}
-                </p>
-                <p className="text-xl md:text-3xl font-bold text-slate-900">
-                  {stat.value}
-                </p>
+              <div className="flex items-center justify-center mb-1 text-slate-600">
+                {stat.icon}
               </div>
+              <p className="text-xs text-slate-600">{stat.label}</p>
+              <p className="text-lg font-bold text-slate-900">{stat.value}</p>
             </div>
           ))}
         </div>
 
+        {/* Search & Filter - Mobile First */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-5">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search by ID or customer..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2.5 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">All Status</option>
+            <option value="draft">Draft</option>
+            <option value="sent">Sent</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+
         {/* Recent Quotations */}
-        <div className="bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl shadow-lg overflow-hidden mb-6 md:mb-8">
-          <div className="p-4 md:p-6 border-b border-slate-200 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
-            <h2 className="text-lg md:text-xl font-semibold text-slate-900 flex items-center gap-2">
-              <span className="text-xl">Document</span> Recent Quotations
+        <div className="bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl shadow-lg overflow-hidden mb-6">
+          <div className="p-4 border-b border-slate-200 flex justify-between items-center">
+            <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <FileText className="w-5 h-5" /> Recent Quotations
             </h2>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-slate-600">Showing</span>
-              <span className="font-semibold text-slate-900">
-                {Math.min(filteredQuotations.length, 10)}
-              </span>
-              <span className="text-slate-600">
-                of {filteredQuotations.length}
-              </span>
-            </div>
+            <span className="text-sm text-slate-600">
+              {filteredQuotations.length} total
+            </span>
           </div>
 
           {/* Desktop Table */}
@@ -187,14 +193,7 @@ export default function StaffDashboard() {
             <table className="w-full text-sm">
               <thead className="bg-slate-50">
                 <tr>
-                  {[
-                    "ID",
-                    "Customer",
-                    "Amount",
-                    "Status",
-                    "Date",
-                    "Actions",
-                  ].map((h) => (
+                  {["ID", "Customer", "Amount", "Status", "Date", "Actions"].map((h) => (
                     <th
                       key={h}
                       className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider"
@@ -230,26 +229,14 @@ export default function StaffDashboard() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 font-medium text-slate-900 flex items-center gap-1">
-                      <span className="text-lg">Money</span> ₹
-                      {quot.total.toLocaleString()}
+                    <td className="px-6 py-4 font-medium text-slate-900">
+                      ₹{quot.total.toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
                       <StatusBadge status={quot.status} />
                     </td>
-                    <td className="px-6 py-4 text-slate-600 flex items-center gap-1">
-                      <span className="text-lg">Clock</span>{" "}
+                    <td className="px-6 py-4 text-slate-600">
                       {new Date(quot.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
-                        <button className="px-3 py-1 text-xs border border-slate-300 rounded-md bg-white hover:bg-slate-100 transition">
-                          View
-                        </button>
-                        <button className="px-3 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-                          Edit
-                        </button>
-                      </div>
                     </td>
                   </tr>
                 ))}
@@ -257,25 +244,31 @@ export default function StaffDashboard() {
             </table>
           </div>
 
-          {/* Mobile Cards */}
+          {/* Mobile Cards - Clean & Modern */}
           <div className="md:hidden p-4 space-y-3">
             {filteredQuotations.slice(0, 10).map((quot) => (
               <div
                 key={quot.id}
-                className="bg-white rounded-lg p-4 border border-slate-200 shadow-sm"
+                className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm"
               >
-                <div className="flex justify-between items-start mb-2">
-                  <div className="font-mono font-semibold text-slate-900">
-                    {quot.id}
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <div className="font-mono font-bold text-slate-900 text-sm">
+                      {quot.id}
+                    </div>
+                    <div className="text-xs text-slate-600 mt-1">
+                      {new Date(quot.createdAt).toLocaleDateString()}
+                    </div>
                   </div>
                   <StatusBadge status={quot.status} />
                 </div>
+
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
                     {quot.customerId[0].toUpperCase()}
                   </div>
                   <div>
-                    <div className="font-medium text-slate-900">
+                    <div className="font-medium text-slate-900 text-sm">
                       Customer {quot.customerId}
                     </div>
                     <div className="text-xs text-slate-600">
@@ -283,22 +276,11 @@ export default function StaffDashboard() {
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <div className="flex items-center gap-1 font-medium text-slate-900">
-                    <span>Money</span> ₹{quot.total.toLocaleString()}
+
+                <div className="flex justify-between items-center mb-3">
+                  <div className="font-bold text-slate-900">
+                    ₹{quot.total.toLocaleString()}
                   </div>
-                  <div className="text-slate-600 flex items-center gap-1">
-                    <span>Clock</span>{" "}
-                    {new Date(quot.createdAt).toLocaleDateString()}
-                  </div>
-                </div>
-                <div className="flex gap-2 mt-3">
-                  <button className="flex-1 py-2 text-xs border border-slate-300 rounded-md bg-white hover:bg-slate-100 transition">
-                    View
-                  </button>
-                  <button className="flex-1 py-2 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-                    Edit
-                  </button>
                 </div>
               </div>
             ))}
@@ -307,7 +289,7 @@ export default function StaffDashboard() {
           {/* Empty State */}
           {filteredQuotations.length === 0 && (
             <div className="text-center py-12 px-4">
-              <div className="text-5xl mb-4">Document</div>
+              <FileText className="mx-auto w-12 h-12 text-slate-300 mb-4" />
               <h3 className="text-lg font-medium text-slate-900 mb-2">
                 {quotations.length === 0
                   ? "No quotations yet"
@@ -322,7 +304,8 @@ export default function StaffDashboard() {
                 href="/staff/create-quotation"
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 py-3 rounded-lg font-medium hover:scale-105 transition"
               >
-                Create Create Quotation
+                <Plus className="w-5 h-5" />
+                Create Quotation
               </Link>
             </div>
           )}
@@ -331,43 +314,42 @@ export default function StaffDashboard() {
         {/* Recent Activity */}
         {recentActivities.length > 0 && (
           <div className="bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl shadow-lg overflow-hidden">
-            <div className="p-4 md:p-6 border-b border-slate-200">
-              <h2 className="text-lg md:text-xl font-semibold text-slate-900 flex items-center gap-2">
-                <span className="text-xl">Refresh</span> Recent Activity (Last 7
-                Days)
+            <div className="p-4 border-b border-slate-200">
+              <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <Clock className="w-5 h-5" /> Recent Activity (Last 7 Days)
               </h2>
             </div>
-            <div className="p-4 md:p-6 space-y-4">
-              {recentActivities.slice(0, 5).map((activity, i) => (
+            <div className="p-4 space-y-4">
+              {recentActivities.map((activity, i) => (
                 <div
                   key={activity.id}
                   className={`flex items-center gap-3 pb-4 ${
-                    i < 4 ? "border-b border-slate-100" : ""
+                    i < recentActivities.length - 1 ? "border-b border-slate-100" : ""
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white">
-                    {activity.status === "draft" && "Create"}
-                    {activity.status === "sent" && "Send"}
-                    {activity.status === "approved" && "Check"}
-                    {activity.status === "rejected" && "Cross"}
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white text-xs">
+                    {activity.status === "draft" && "D"}
+                    {activity.status === "sent" && "S"}
+                    {activity.status === "approved" && "A"}
+                    {activity.status === "rejected" && "R"}
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-slate-900 text-sm md:text-base">
-                      Quotation {activity.id}{" "}
+                    <p className="font-medium text-slate-900 text-sm">
+                      Quotation <span className="font-mono">{activity.id}</span>{" "}
                       {activity.status === "sent"
-                        ? "sent to"
+                        ? "sent"
                         : activity.status === "approved"
-                        ? "approved for"
+                        ? "approved"
                         : activity.status === "rejected"
-                        ? "rejected for"
-                        : "created for"}{" "}
-                      Customer {activity.customerId}
+                        ? "rejected"
+                        : "created"}{" "}
+                      for Customer {activity.customerId}
                     </p>
-                    <p className="text-xs md:text-sm text-slate-600">
+                    <p className="text-xs text-slate-600">
                       {new Date(activity.createdAt).toLocaleString()}
                     </p>
                   </div>
-                  <div className="font-semibold text-slate-900">
+                  <div className="font-bold text-slate-900 text-sm">
                     ₹{activity.total.toLocaleString()}
                   </div>
                 </div>
@@ -382,11 +364,11 @@ export default function StaffDashboard() {
 
 // Reusable Status Badge
 function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, { bg: string; text: string; icon: string }> = {
-    draft: { bg: "bg-amber-100", text: "text-amber-800", icon: "Clock" },
-    sent: { bg: "bg-blue-100", text: "text-blue-800", icon: "Send" },
-    approved: { bg: "bg-green-100", text: "text-green-800", icon: "Check" },
-    rejected: { bg: "bg-red-100", text: "text-red-800", icon: "Cross" },
+  const styles: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
+    draft: { bg: "bg-amber-100", text: "text-amber-800", icon: <Clock className="w-3 h-3" /> },
+    sent: { bg: "bg-blue-100", text: "text-blue-800", icon: <Send className="w-3 h-3" /> },
+    approved: { bg: "bg-green-100", text: "text-green-800", icon: <CheckCircle className="w-3 h-3" /> },
+    rejected: { bg: "bg-red-100", text: "text-red-800", icon: <XCircle className="w-3 h-3" /> },
   };
 
   const s = styles[status] || styles.draft;
