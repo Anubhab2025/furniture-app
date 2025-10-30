@@ -111,10 +111,7 @@ export default function AdminCustomersPage() {
 
         {/* ---------- HEADER ---------- */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
-            <User className="w-7 h-7 md:w-8 md:h-8" />
-            Customers
-          </h1>
+        
 
           <button
             onClick={() => setShowAddForm(true)}

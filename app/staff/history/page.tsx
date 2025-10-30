@@ -30,9 +30,10 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import jsPDF from "jspdf";
+import { generateQuotationPDF, generatePDFBlob } from "@/src/utils/pdfGenerator";
 
 export default function HistoryPage() {
-  const { quotations, updateQuotation, sendQuotation } = useEmployee();
+  const { quotations, updateQuotation } = useEmployee();
   const { customers, products, loading } = useAdmin();
 
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -140,255 +141,66 @@ export default function HistoryPage() {
   };
 
   const downloadPDF = (quotation: Quotation) => {
-    const doc = new jsPDF();
     const customer = getCustomer(quotation.customerId);
-
-    // Colors
-    const primaryColor = [41, 128, 185]; // Blue
-    const accentColor = [155, 89, 182]; // Purple
-    const successColor = [39, 174, 96]; // Green
-    const warningColor = [241, 196, 15]; // Yellow
-    const lightBg = [245, 245, 245]; // Light gray
-
-    // Helper function to add color
-    const setColor = (color: number[]) => {
-      doc.setFillColor(color[0], color[1], color[2]);
-    };
-
-    // === HEADER WITH GRADIENT ===
-    setColor(primaryColor);
-    doc.rect(0, 0, 210, 40, "F");
-
-    // Title with white text
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.setFont(undefined, "bold");
-    doc.text("QUOTATION", 105, 25, { align: "center" });
-
-    // === QUOTATION INFO - HORIZONTAL TABLE FORMAT ===
-    doc.setTextColor(50, 50, 50);
-    doc.setFontSize(12);
-    doc.setFont(undefined, "normal");
-
-    // Table structure with multiple rows
-    const infoTableTop = 50;
-    const rowHeight = 8;
-
-    // Row 1: Headers
-    doc.setFillColor(240, 240, 240);
-    doc.rect(15, infoTableTop, 85, rowHeight, "F");
-    doc.rect(100, infoTableTop, 95, rowHeight, "F");
-    doc.setTextColor(80, 80, 80);
-    doc.setFontSize(9);
-    doc.setFont(undefined, "bold");
-    doc.text("QUOTATION DETAILS", 57.5, infoTableTop + 6, { align: "center" });
-    doc.text("CUSTOMER INFORMATION", 147.5, infoTableTop + 6, { align: "center" });
-
-    // Row 2: ID / Name
-    doc.setFillColor(250, 250, 250);
-    doc.rect(15, infoTableTop + rowHeight, 85, rowHeight, "F");
-    doc.rect(100, infoTableTop + rowHeight, 95, rowHeight, "F");
-    doc.setTextColor(60, 60, 60);
-    doc.setFontSize(8);
-    doc.setFont(undefined, "normal");
-    doc.text(`ID: ${quotation.id}`, 20, infoTableTop + rowHeight + 6);
-    doc.text(`Name: ${customer?.name || "Unknown"}`, 105, infoTableTop + rowHeight + 6);
-
-    // Row 3: Date / Phone
-    doc.setFillColor(255, 255, 255);
-    doc.rect(15, infoTableTop + rowHeight * 2, 85, rowHeight, "F");
-    doc.rect(100, infoTableTop + rowHeight * 2, 95, rowHeight, "F");
-    doc.text(`Date: ${new Date(quotation.createdAt).toLocaleDateString()}`, 20, infoTableTop + rowHeight * 2 + 6);
-    if (customer?.phone) {
-      doc.text(`Phone: ${customer.phone}`, 105, infoTableTop + rowHeight * 2 + 6);
-    }
-
-    // Row 4: Status / Email
-    doc.setFillColor(250, 250, 250);
-    doc.rect(15, infoTableTop + rowHeight * 3, 85, rowHeight, "F");
-    doc.rect(100, infoTableTop + rowHeight * 3, 95, rowHeight, "F");
-    doc.text(`Status: ${quotation.status}`, 20, infoTableTop + rowHeight * 3 + 6);
-    if (customer?.email) {
-      const emailText = `Email: ${customer.email}`;
-      const emailLines = doc.splitTextToSize(emailText, 85);
-      emailLines.forEach((line: string, index: number) => {
-        doc.text(line, 105, infoTableTop + rowHeight * 3 + 6 + index * 4);
-      });
-    }
-
-    // Table border
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.5);
-    doc.rect(15, infoTableTop, 180, rowHeight * 4, "S");
-    doc.line(100, infoTableTop, 100, infoTableTop + rowHeight * 4); // Vertical divider
-
-    // === ITEMS TABLE HEADER ===
-    const tableTop = 130;
-
-    // Table header with gradient
-    setColor(primaryColor);
-    doc.roundedRect(15, tableTop, 180, 12, 2, 2, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(10);
-    doc.setFont(undefined, "bold");
-    doc.text("ITEM", 25, tableTop + 8);
-    doc.text("QTY", 120, tableTop + 8);
-    doc.text("PRICE", 140, tableTop + 8);
-    doc.text("DISCOUNT", 160, tableTop + 8);
-    doc.text("TOTAL", 180, tableTop + 8);
-
-    // === ITEMS ===
-    let yPosition = tableTop + 25;
-    let itemCounter = 0;
-
-    quotation.items.forEach((item) => {
-      const product = products?.find((p) => p.id === item.productId);
-      const title = product?.title || item.customTitle || "Custom Item";
-      const itemTotal = item.price * item.quantity - (item.discount || 0);
-
-      // Alternate row colors
-      if (itemCounter % 2 === 0) {
-        setColor([250, 250, 250]);
-      } else {
-        setColor([255, 255, 255]);
-      }
-      doc.rect(15, yPosition - 8, 180, 20, "F");
-
-      // Add photo if exists
-      if (item.customPhoto) {
-        try {
-          // Add photo with border
-          doc.setDrawColor(200, 200, 200);
-          doc.rect(20, yPosition - 5, 25, 25);
-          doc.addImage(item.customPhoto, "JPEG", 21, yPosition - 4, 23, 23);
-
-          // Item title (shorter width due to photo)
-          doc.setTextColor(60, 60, 60);
-          doc.setFontSize(9);
-          const lines = doc.splitTextToSize(title, 45);
-          lines.forEach((line: string, index: number) => {
-            doc.text(line, 50, yPosition + index * 4);
-          });
-        } catch (error) {
-          // Fallback without photo
-          doc.setTextColor(60, 60, 60);
-          doc.setFontSize(9);
-          const lines = doc.splitTextToSize(title, 80);
-          lines.forEach((line: string, index: number) => {
-            doc.text(line, 25, yPosition + index * 4);
-          });
-        }
-      } else {
-        // Item without photo
-        doc.setTextColor(60, 60, 60);
-        doc.setFontSize(9);
-        const lines = doc.splitTextToSize(title, 80);
-        lines.forEach((line: string, index: number) => {
-          doc.text(line, 25, yPosition + index * 4);
-        });
-      }
-
-      // Item details
-      doc.setTextColor(80, 80, 80);
-      doc.setFontSize(9);
-      doc.text(item.quantity.toString(), 120, yPosition);
-      doc.text(`₹${item.price.toLocaleString()}`, 140, yPosition);
-      doc.text(`₹${(item.discount || 0).toLocaleString()}`, 160, yPosition);
-
-      // Total in green
-      doc.setTextColor(successColor[0], successColor[1], successColor[2]);
-      doc.setFont(undefined, "bold");
-      doc.text(`₹${itemTotal.toLocaleString()}`, 180, yPosition);
-
-      yPosition += 25;
-      itemCounter++;
-
-      // Page break if needed
-      if (yPosition > 250) {
-        doc.addPage();
-        yPosition = 30;
-      }
-    });
-
-    // === SUMMARY SECTION - TABLE FORMAT ===
-    const summaryTop = Math.max(yPosition + 15, 190);
-
-    // Summary table header
-    doc.setFillColor(240, 240, 240);
-    doc.rect(60, summaryTop, 90, 8, "F");
-    doc.setTextColor(80, 80, 80);
-    doc.setFontSize(9);
-    doc.setFont(undefined, "bold");
-    doc.text("SUMMARY", 105, summaryTop + 6, { align: "center" });
-
-    // Summary table content
-    doc.setFillColor(250, 250, 250);
-    doc.rect(60, summaryTop + 8, 90, 32, "F");
-    doc.setTextColor(60, 60, 60);
-    doc.setFontSize(8);
-    doc.setFont(undefined, "normal");
-
-    // Left column - Labels
-    doc.text("Subtotal:", 70, summaryTop + 18);
-    doc.text("Tax (18%):", 70, summaryTop + 26);
-    if (quotation.discount > 0) {
-      doc.text("Discount:", 70, summaryTop + 34);
-    }
-
-    // Right column - Amounts
-    doc.text(`₹${quotation.subtotal.toLocaleString()}`, 140, summaryTop + 18, { align: "right" });
-    doc.text(`₹${quotation.tax.toLocaleString()}`, 140, summaryTop + 26, { align: "right" });
-    if (quotation.discount > 0) {
-      doc.setTextColor(239, 68, 68); // Red for discount
-      doc.text(`-₹${quotation.discount.toLocaleString()}`, 140, summaryTop + 34, { align: "right" });
-    }
-
-    // Total separator line
-    doc.setDrawColor(41, 128, 185);
-    doc.setLineWidth(0.5);
-    doc.line(70, summaryTop + 38, 140, summaryTop + 38);
-
-    // Total row
-    doc.setTextColor(41, 128, 185);
-    doc.setFontSize(10);
-    doc.setFont(undefined, "bold");
-    doc.text("TOTAL:", 70, summaryTop + 46);
-    doc.setTextColor(34, 197, 94);
-    doc.text(`₹${quotation.total.toLocaleString()}`, 140, summaryTop + 46, { align: "right" });
-
-    // Table border
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.5);
-    doc.rect(60, summaryTop, 90, 48, "S");
-
-    // === FOOTER ===
-    const footerY = 275;
-    doc.setTextColor(150, 150, 150);
-    doc.setFontSize(8);
-    doc.setFont(undefined, "normal");
-    doc.text("Thank you for your business!", 105, footerY, { align: "center" });
-    doc.text("Generated on " + new Date().toLocaleString(), 105, footerY + 5, {
-      align: "center",
-    });
-    doc.setTextColor(41, 128, 185); // Blue color
-    doc.setFont(undefined, "bold");
-    doc.text("Powered by botivste", 105, footerY + 10, { align: "center" });
-
-    // Save PDF
-    doc.save(`quotation-${quotation.id}.pdf`);
+    generateQuotationPDF(quotation, customer, products);
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!sendingQuotation || !selectedCustomer) return;
     const customer = getCustomer(selectedCustomer);
     if (!customer) return;
 
-    sendQuotation(sendingQuotation, sendMethod, customer);
-    const updated = { ...sendingQuotation, status: "sent" as const };
-    updateQuotation(updated.id, updated);
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      `Send quotation ${sendingQuotation.id} to ${customer.name} via WhatsApp?`
+    );
 
-    alert(`Quotation sent via ${sendMethod} to ${customer.name}!`);
-    closeSend();
+    if (!confirmed) return;
+
+    try {
+      // Generate PDF as blob for sharing
+      const pdfBlob = await generatePDFBlob(sendingQuotation, customer, products);
+      const pdfFile = new File([pdfBlob], `quotation-${sendingQuotation.id}.pdf`, {
+        type: 'application/pdf'
+      });
+
+      // Always use the reliable approach: Download PDF + WhatsApp with clear instructions
+      // Create download link and trigger download
+      const url = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `quotation-${sendingQuotation.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      // Small delay to ensure download starts, then open WhatsApp
+      setTimeout(() => {
+        const message = encodeURIComponent(
+          `Hello ${customer.name}! 📋\n\n` +
+            `I've prepared your quotation (${sendingQuotation.id}):\n\n` +
+            `📦 Items: ${sendingQuotation.items.length}\n` +
+            `💰 Total: ₹${sendingQuotation.total.toLocaleString()}\n\n` +
+            `📎 *PLEASE ATTACH THE DOWNLOADED PDF FILE ABOVE*\n` +
+            `The PDF should be in your downloads folder as: quotation-${sendingQuotation.id}.pdf\n\n` +
+            `Let me know if you have any questions! 🙋‍♂️`
+        );
+
+        const whatsappUrl = `https://wa.me/${customer.phone}?text=${message}`;
+        window.open(whatsappUrl, "_blank");
+      }, 500);
+
+      // Update quotation status
+      const updated = { ...sendingQuotation, status: "sent" as const };
+      updateQuotation(updated.id, updated);
+
+      alert(`PDF downloaded! WhatsApp will open - please attach the downloaded PDF to your message.`);
+      closeSend();
+    } catch (error) {
+      console.error('Error sending quotation:', error);
+      alert('Error sending quotation. Please try again.');
+    }
   };
 
   const addCustomItem = () => {
@@ -574,12 +386,13 @@ export default function HistoryPage() {
                           <p className="text-xs text-gray-500 mb-2">
                             Attached Photo
                           </p>
-                          <div className="relative w-100 h-38 rounded-lg overflow-hidden border mx-auto">
+                          <div className="relative w-full max-w-xs h-32 mx-auto rounded-lg overflow-hidden border border-gray-200">
                             <Image
                               src={item.customPhoto}
                               alt="Item photo"
                               fill
                               className="object-cover"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
                           </div>
                         </div>
@@ -705,28 +518,17 @@ export default function HistoryPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Send Via
                 </label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="flex justify-center">
                   <button
                     onClick={() => setSendMethod("whatsapp")}
-                    className={`p-3 rounded-lg border flex flex-col items-center gap-1 transition-all ${
+                    className={`p-4 rounded-lg border flex flex-col items-center gap-2 transition-all w-full max-w-xs ${
                       sendMethod === "whatsapp"
                         ? "bg-green-100 border-green-500 text-green-700"
                         : "border-gray-200"
                     }`}
                   >
-                    <MessageCircle className="w-5 h-5" />
-                    <span className="text-xs font-medium">WhatsApp</span>
-                  </button>
-                  <button
-                    onClick={() => setSendMethod("email")}
-                    className={`p-3 rounded-lg border flex flex-col items-center gap-1 transition-all ${
-                      sendMethod === "email"
-                        ? "bg-blue-100 border-blue-500 text-blue-700"
-                        : "border-gray-200"
-                    }`}
-                  >
-                    <Mail className="w-5 h-5" />
-                    <span className="text-xs font-medium">Email</span>
+                    <MessageCircle className="w-6 h-6" />
+                    <span className="text-sm font-medium">WhatsApp</span>
                   </button>
                 </div>
               </div>

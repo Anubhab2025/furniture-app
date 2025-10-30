@@ -28,7 +28,7 @@ export function EmployeeSidebar() {
       <button
         onClick={toggle}
         aria-label={mobileOpen ? "Close menu" : "Open menu"}
-        className="fixed top-4 left-75 z-50 p-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/20 md:hidden"
+        className="fixed top-4 left-85 z-50 p-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/20 md:hidden"
       >
         {mobileOpen ? (
           <X className="h-6 w-6 text-gray-700" />
@@ -49,14 +49,16 @@ export function EmployeeSidebar() {
       {/* ───── Sidebar ───── */}
       <aside
         className={`
-          fixed inset-y-0 left-0 z-40 flex flex-col w-62 h-screen
+          fixed left-0 z-40 flex flex-col w-62 
           bg-white/95 backdrop-blur-sm border-r border-gray-200 shadow-lg
           transition-all duration-300 ease-in-out transform
           ${mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
           md:relative
+          top-0 md:top-0
+          h-screen md:h-screen
         `}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col">
           {/* Header */}
           <div className="p-6 mb-2">
             <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -66,7 +68,7 @@ export function EmployeeSidebar() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-6 md:pb-10 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+          <nav className="overflow-y-auto overflow-x-hidden px-3 pb-6 md:pb-10 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
             <div className="space-y-1">
               {navItems.map((item) => (
                 <Link
@@ -98,11 +100,8 @@ export function EmployeeSidebar() {
             </div>
           </nav>
 
-          {/* Spacer to push logout button down */}
-          <div className="flex-1"></div>
-
-          {/* Logout - Positioned lower in sidebar */}
-          <div className="border-t border-gray-100 px-3 pt-4 pb-6">
+          {/* Logout - Positioned after navigation */}
+          <div className="border-t border-gray-100 px-3 pt-4 pb-60 mt-70">
             <button
               onClick={() => {
                 logout();

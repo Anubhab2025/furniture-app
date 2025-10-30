@@ -74,17 +74,19 @@ export function AdminSidebar() {
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 z-40
-          w-64 h-screen
+          fixed left-0 z-40
+          w-64 
           bg-white/80 backdrop-blur-sm border-r border-white/20 shadow-lg
           p-6 overflow-y-auto
           transition-transform duration-300 ease-in-out
           ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           flex flex-col
+          top-16 lg:top-0
+          h-[calc(100vh-4rem)] lg:h-screen
         `}
       >
         {/* Logo & Title */}
-        <div className="mb-8 mt-16 lg:mt-0">
+        <div className="mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Furniture Co.
           </h1>
@@ -96,11 +98,8 @@ export function AdminSidebar() {
           <NavLinks />
         </nav>
 
-        {/* Spacer to push logout button down */}
-        <div className="flex-1"></div>
-
-        {/* Logout - Positioned lower in sidebar */}
-        <div className="pt-10 border-t border-gray-100">
+        {/* Logout - Positioned after navigation */}
+        <div className="pt-4 border-t border-gray-100 mt-60">
           <button
             onClick={logout}
             className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5 gap-2"

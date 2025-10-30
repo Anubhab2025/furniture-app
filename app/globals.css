@@ -121,7 +121,21 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html,
+  body {
+    scroll-behavior: smooth;
+  }
   body {
     @apply bg-background text-foreground;
+    scrollbar-width: none;
+  }
+  body::-webkit-scrollbar {
+    display: none;
+  }
+  .scroll-lock {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+    inset: 0;
   }
 }

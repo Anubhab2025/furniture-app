@@ -116,12 +116,36 @@ export default function CustomersPage() {
     setShowQuotationModal(customerId);
   const closeQuotation = () => setShowQuotationModal(null);
 
+  const scrollLockRef = useRef(0);
+  const modalOpen = Boolean(
+    showAddForm || editingCustomer || viewingCustomer || showQuotationModal
+  );
+
+  useEffect(() => {
+    const body = document.body;
+
+    if (modalOpen) {
+      scrollLockRef.current = window.scrollY;
+      body.classList.add("scroll-lock");
+      body.style.top = `-${scrollLockRef.current}px`;
+    } else {
+      body.classList.remove("scroll-lock");
+      body.style.top = "";
+      window.scrollTo(0, scrollLockRef.current);
+    }
+
+    return () => {
+      body.classList.remove("scroll-lock");
+      body.style.top = "";
+    };
+  }, [modalOpen]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 lg:p-8">
+    <div className="custom-scroll min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
+          <h1 className="hidden sm:flex text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent items-center gap-2">
             <User className="w-7 h-7 md:w-8 md:h-8" />
             My Customers
           </h1>
@@ -136,7 +160,7 @@ export default function CustomersPage() {
 
         {/* ───── Add / Edit Form Modal ───── */}
         {(showAddForm || editingCustomer) && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="custom-scroll fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
             <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
               <div className="p-5 border-b border-gray-200 flex justify-between items-center">
                 <h2 className="text-lg md:text-xl font-semibold text-gray-800">
@@ -211,7 +235,7 @@ export default function CustomersPage() {
 
         {/* ───── View Customer Modal ───── */}
         {viewingCustomer && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="custom-scroll fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
             <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
               <div className="p-5 border-b border-gray-200 flex justify-between items-center">
                 <h2 className="text-lg md:text-xl font-semibold text-gray-800">
@@ -555,6 +579,49 @@ function QuotationModal({
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  // Lock background scroll while modal is open (covers iOS Safari quirks)
+  useEffect(() => {
+    const body = document.body;
+    const scrollY = window.scrollY;
+
+    const original = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+    };
+
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.width = "100%";
+
+    const viewport = document.querySelector(
+      'meta[name="viewport"]'
+    ) as HTMLMetaElement | null;
+    const originalViewportContent = viewport?.getAttribute("content") ?? null;
+
+    if (viewport) {
+      viewport.setAttribute(
+        "content",
+        "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      );
+    }
+
+    return () => {
+      body.style.overflow = original.overflow;
+      body.style.position = original.position;
+      body.style.top = original.top;
+      body.style.width = original.width;
+
+      window.scrollTo(0, scrollY);
+
+      if (viewport && originalViewportContent) {
+        viewport.setAttribute("content", originalViewportContent);
+      }
+    };
+  }, []);
+
   const addCustomItem = () => {
     const id = `custom-${Date.now()}`;
     setItems((prev) => [
@@ -700,8 +767,8 @@ function QuotationModal({
   const customer = customers.find((c) => c.id === customerId);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] md:h-[100vh] overflow-y-auto shadow-2xl scrollbar-thin scrollbar-thumb-transparent scrollbar-track-transparent">
+    <div className="custom-scroll fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="custom-scroll bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] md:h-[100vh] overflow-y-auto shadow-2xl scrollbar-thin scrollbar-thumb-transparent scrollbar-track-transparent">
         <div className="sticky top-0 bg-white p-4 md:p-6 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-xl md:text-2xl font-bold text-gray-800">
             Create Quotation
@@ -810,36 +877,58 @@ function QuotationModal({
                       )}
 
                       <div className="mb-4 pb-4 border-b border-gray-100">
-                        <label className="text-xs text-gray-500 block mb-2">
+                        <label className="text-xs text-gray-500 block mb-3 font-medium">
                           Custom Photo
                         </label>
-                        <div className="flex gap-3 items-start">
-                          {item.customPhoto ? (
-                            <div className="relative w-14 h-14 rounded-lg overflow-hidden border">
-                              <Image
-                                src={item.customPhoto}
-                                alt=""
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-14 h-14 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
-                              No photo
-                            </div>
-                          )}
-                          <div className="flex-1 space-y-2">
-                            <div className="flex gap-2">
+                        <div className="flex gap-4 items-start">
+                          <div className="flex-shrink-0">
+                            {item.customPhoto ? (
+                              <div className="relative group">
+                                <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-green-200 shadow-md">
+                                  <Image
+                                    src={item.customPhoto}
+                                    alt="Item photo"
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                                <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                                  <svg
+                                    className="w-3 h-3 text-white"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                </div>
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                  <span className="text-white text-xs font-medium bg-black/50 px-2 py-1 rounded">
+                                    Photo added
+                                  </span>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 bg-gray-50 hover:bg-gray-100 transition-colors">
+                                <Camera className="w-6 h-6" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 space-y-3">
+                            <div className="grid grid-cols-1 gap-2">
                               <button
                                 onClick={() => openCamera(item.productId)}
-                                className="flex-1 bg-green-500 text-white py-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1"
+                                className="bg-green-500 hover:bg-green-600 text-white py-2 px-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow-md"
                               >
                                 <Camera className="w-4 h-4" />
-                                Camera
+                                Take Photo
                               </button>
-                              <label className="flex-1 bg-blue-500 text-white py-2 rounded-lg text-xs font-medium cursor-pointer flex items-center justify-center gap-1">
+                              <label className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-2 rounded-lg text-sm font-medium cursor-pointer flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow-md">
                                 <Upload className="w-4 h-4" />
-                                Upload
+                                Upload Image
                                 <input
                                   type="file"
                                   accept="image/*"
@@ -851,17 +940,35 @@ function QuotationModal({
                               </label>
                             </div>
                             {item.customPhoto && (
-                              <button
-                                onClick={() =>
-                                  updateItem(item.productId, {
-                                    customPhoto: undefined,
-                                  })
-                                }
-                                className="text-red-500 text-xs flex items-center gap-1"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                                Remove
-                              </button>
+                              <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-2">
+                                <div className="flex items-center gap-2 text-green-700">
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                  <span className="text-sm font-medium">
+                                    Photo successfully added!
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={() =>
+                                    updateItem(item.productId, {
+                                      customPhoto: undefined,
+                                    })
+                                  }
+                                  className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
+                                  title="Remove photo"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>
