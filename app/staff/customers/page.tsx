@@ -11,7 +11,6 @@ import {
   Mail,
   Phone,
   MessageCircle,
-  Eye,
   Edit3,
   X,
   Camera,
@@ -365,14 +364,7 @@ export default function CustomersPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 mt-4">
-                  <button
-                    onClick={() => setViewingCustomer(c)}
-                    className="flex items-center justify-center gap-1 py-2 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium"
-                  >
-                    <Eye className="w-4 h-4" />
-                    View
-                  </button>
+                <div className="grid grid-cols-2 gap-2 mt-4">
                   <button
                     onClick={() => openEdit(c)}
                     className="flex items-center justify-center gap-1 py-2 bg-green-100 text-green-700 rounded-lg text-xs font-medium"
@@ -515,13 +507,6 @@ function CustomerRow({
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
         <div className="flex space-x-2">
-          <button
-            onClick={() => openView(customer)}
-            className="text-blue-600 hover:text-blue-900 p-2 rounded-lg hover:bg-blue-50 transition"
-            title="View"
-          >
-            <Eye className="w-4 h-4" />
-          </button>
           <button
             onClick={() => openEdit(customer)}
             className="text-green-600 hover:text-green-900 p-2 rounded-lg hover:bg-green-50 transition"
@@ -716,7 +701,7 @@ function QuotationModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl w-full max-w-7xl max-h-[95vh] overflow-y-auto shadow-2xl">
+      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] md:h-[100vh] overflow-y-auto shadow-2xl scrollbar-thin scrollbar-thumb-transparent scrollbar-track-transparent">
         <div className="sticky top-0 bg-white p-4 md:p-6 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-xl md:text-2xl font-bold text-gray-800">
             Create Quotation
@@ -775,7 +760,7 @@ function QuotationModal({
                             />
                           )}
                           <p className="text-xs text-gray-500 mt-1">
-                            ₹{item.price.toLocaleString()}
+                            ₹{Number(item.price || 0).toLocaleString()}
                           </p>
                         </div>
                         <button
@@ -895,10 +880,10 @@ function QuotationModal({
                               <input
                                 type="number"
                                 min={idx === 0 ? 1 : 0}
-                                value={(item[key] as number) ?? 0}
+                                value={item[key] || ""}
                                 onChange={(e) =>
                                   updateItem(item.productId, {
-                                    [key]: parseInt(e.target.value) || 0,
+                                    [key]: e.target.value,
                                   })
                                 }
                                 className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
@@ -915,49 +900,51 @@ function QuotationModal({
           </div>
 
           <div className="lg:col-span-1">
-            <div className="bg-gray-50 rounded-xl p-4 sticky top-24">
-              <h3 className="font-semibold mb-3 text-gray-800">Summary</h3>
+            <div className="bg-gray-50 rounded-xl p-3 sticky top-24">
+              <h3 className="font-semibold mb-2 text-gray-800 text-sm">
+                Summary
+              </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal</span>
+                  <span className="text-gray-600 text-xs">Subtotal</span>
                   <span className="font-medium">
                     ₹{subtotal.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Tax (18%)</span>
+                  <span className="text-gray-600 text-xs">Tax (18%)</span>
                   <span className="font-medium">
                     ₹{taxAmount.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Discount</span>
+                  <span className="text-gray-600 text-xs">Discount</span>
                   <input
                     type="number"
                     min="0"
                     value={discount}
                     onChange={(e) => setDiscount(parseInt(e.target.value) || 0)}
-                    className="w-20 px-2 py-1 border border-gray-200 rounded text-right text-sm"
+                    className="w-16 px-2 py-1 border border-gray-200 rounded text-right text-xs"
                   />
                 </div>
               </div>
-              <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-200">
-                <span className="font-bold text-gray-800">Total</span>
-                <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+              <div className="flex justify-between items-center mt-3 pt-2 border-t border-gray-200">
+                <span className="font-bold text-gray-800 text-sm">Total</span>
+                <span className="text-xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
                   ₹{total.toLocaleString()}
                 </span>
               </div>
 
-              <div className="flex gap-3 mt-4">
+              <div className="flex gap-2 mt-3 p-1">
                 <button
                   onClick={handleSubmit}
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-semibold"
+                  className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-1.5 rounded-lg font-semibold text-xs"
                 >
                   Save as Draft
                 </button>
                 <button
                   onClick={onClose}
-                  className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold"
+                  className="flex-1 bg-gray-200 text-gray-700 py-1.5 rounded-lg font-semibold text-xs"
                 >
                   Cancel
                 </button>

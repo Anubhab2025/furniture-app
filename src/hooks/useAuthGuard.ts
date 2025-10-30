@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 
 export function useAuthGuard(requiredRole?: string) {
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user, isLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (isLoading) return // Don't redirect while loading
+
+    if (isAuthenticated === false) {
       router.push("/login")
       return
     }
@@ -17,7 +19,7 @@ export function useAuthGuard(requiredRole?: string) {
     if (requiredRole && user?.role !== requiredRole) {
       router.push("/")
     }
-  }, [isAuthenticated, user, requiredRole, router])
+  }, [isAuthenticated, user, requiredRole, router, isLoading])
 
   return { isAuthenticated, user }
 }

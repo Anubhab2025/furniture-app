@@ -101,43 +101,59 @@ export default function StaffDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header - Mobile Optimized */}
         <div className="mb-6">
-          <div className="flex flex-col gap-3">
-            <div>
-              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Welcome, {user?.name}
-              </h1>
-              <p className="text-sm text-slate-600 mt-1">
-                {currentTime.toLocaleDateString("en-US", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}{" "}
-                •{" "}
-                {currentTime.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-            </div>
-            <div className="bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-sm">
-              <p className="text-slate-600">Employee ID</p>
-              <p className="font-semibold text-slate-900">
-                {user?.employeeId || "EMP001"}
-              </p>
-            </div>
+          <div>
+            <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Welcome, {user?.name}
+            </h1>
+            <p className="text-sm text-slate-600 mt-1">
+              {currentTime.toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}{" "}
+              •{" "}
+              {currentTime.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
           </div>
         </div>
 
         {/* Quick Stats - Mobile Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
           {[
-            { label: "Today", value: todayQuotations.length, icon: <Calendar className="w-4 h-4" /> },
-            { label: "Drafts", value: pendingQuotations.length, icon: <Clock className="w-4 h-4" /> },
-            { label: "Sent", value: sentQuotations.length, icon: <Send className="w-4 h-4" /> },
-            { label: "Approved", value: approvedQuotations.length, icon: <CheckCircle className="w-4 h-4" /> },
-            { label: "Rejected", value: rejectedQuotations.length, icon: <XCircle className="w-4 h-4" /> },
-            { label: "Monthly", value: `₹${monthlyRevenue.toLocaleString()}`, icon: <TrendingUp className="w-4 h-4" /> },
+            {
+              label: "Today",
+              value: todayQuotations.length,
+              icon: <Calendar className="w-4 h-4" />,
+            },
+            {
+              label: "Drafts",
+              value: pendingQuotations.length,
+              icon: <Clock className="w-4 h-4" />,
+            },
+            {
+              label: "Sent",
+              value: sentQuotations.length,
+              icon: <Send className="w-4 h-4" />,
+            },
+            {
+              label: "Approved",
+              value: approvedQuotations.length,
+              icon: <CheckCircle className="w-4 h-4" />,
+            },
+            {
+              label: "Rejected",
+              value: rejectedQuotations.length,
+              icon: <XCircle className="w-4 h-4" />,
+            },
+            {
+              label: "Monthly",
+              value: `₹${monthlyRevenue.toLocaleString()}`,
+              icon: <TrendingUp className="w-4 h-4" />,
+            },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -193,7 +209,14 @@ export default function StaffDashboard() {
             <table className="w-full text-sm">
               <thead className="bg-slate-50">
                 <tr>
-                  {["ID", "Customer", "Amount", "Status", "Date", "Actions"].map((h) => (
+                  {[
+                    "ID",
+                    "Customer",
+                    "Amount",
+                    "Status",
+                    "Date",
+                  
+                  ].map((h) => (
                     <th
                       key={h}
                       className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider"
@@ -324,7 +347,9 @@ export default function StaffDashboard() {
                 <div
                   key={activity.id}
                   className={`flex items-center gap-3 pb-4 ${
-                    i < recentActivities.length - 1 ? "border-b border-slate-100" : ""
+                    i < recentActivities.length - 1
+                      ? "border-b border-slate-100"
+                      : ""
                   }`}
                 >
                   <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white text-xs">
@@ -364,11 +389,30 @@ export default function StaffDashboard() {
 
 // Reusable Status Badge
 function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
-    draft: { bg: "bg-amber-100", text: "text-amber-800", icon: <Clock className="w-3 h-3" /> },
-    sent: { bg: "bg-blue-100", text: "text-blue-800", icon: <Send className="w-3 h-3" /> },
-    approved: { bg: "bg-green-100", text: "text-green-800", icon: <CheckCircle className="w-3 h-3" /> },
-    rejected: { bg: "bg-red-100", text: "text-red-800", icon: <XCircle className="w-3 h-3" /> },
+  const styles: Record<
+    string,
+    { bg: string; text: string; icon: React.ReactNode }
+  > = {
+    draft: {
+      bg: "bg-amber-100",
+      text: "text-amber-800",
+      icon: <Clock className="w-3 h-3" />,
+    },
+    sent: {
+      bg: "bg-blue-100",
+      text: "text-blue-800",
+      icon: <Send className="w-3 h-3" />,
+    },
+    approved: {
+      bg: "bg-green-100",
+      text: "text-green-800",
+      icon: <CheckCircle className="w-3 h-3" />,
+    },
+    rejected: {
+      bg: "bg-red-100",
+      text: "text-red-800",
+      icon: <XCircle className="w-3 h-3" />,
+    },
   };
 
   const s = styles[status] || styles.draft;

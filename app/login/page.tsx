@@ -48,31 +48,31 @@ export default function LoginPage() {
   return (
     <div
       style={{
-        position: 'fixed',
+        position: "fixed",
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        minHeight: '100vh',
-        background: 'linear-gradient(to bottom right, #1e40af, #1e3a8a)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem',
-        overflow: 'auto',
-        boxSizing: 'border-box',
+        minHeight: "100vh",
+        background: "linear-gradient(to bottom right, #1e40af, #1e3a8a)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "1rem",
+        overflow: "auto",
+        boxSizing: "border-box",
       }}
     >
       <div
         style={{
-          background: 'white',
-          borderRadius: '0.5rem',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          padding: '2.5rem',
-          maxWidth: '28rem',
-          width: '100%',
-          margin: 'auto',
-          boxSizing: 'border-box',
+          background: "white",
+          borderRadius: "0.5rem",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+          padding: "2.5rem",
+          maxWidth: "28rem",
+          width: "100%",
+          margin: "auto",
+          boxSizing: "border-box",
         }}
       >
         <h1

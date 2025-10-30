@@ -12,13 +12,13 @@ export function EmployeeSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActive = (path: string) => pathname === path;
-  const toggle = () => setMobileOpen(v => !v);
+  const toggle = () => setMobileOpen((v) => !v);
   const close = () => setMobileOpen(false);
 
   const navItems = [
     { href: "/staff", icon: Home, label: "Dashboard" },
     { href: "/staff/customers", icon: Users, label: "Customers" },
-  //  { href: "/staff/create-quotation", icon: FileText, label: "Create Quotation" },
+    //  { href: "/staff/create-quotation", icon: FileText, label: "Create Quotation" },
     { href: "/staff/history", icon: History, label: "History" },
   ];
 
@@ -28,9 +28,13 @@ export function EmployeeSidebar() {
       <button
         onClick={toggle}
         aria-label={mobileOpen ? "Close menu" : "Open menu"}
-        className="fixed top-4 left-1 z-50 p-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/20 md:hidden"
+        className="fixed top-4 left-75 z-50 p-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/20 md:hidden"
       >
-        {mobileOpen ? <X className="h-6 w-6 text-gray-700" /> : <Menu className="h-6 w-6 text-gray-700" />}
+        {mobileOpen ? (
+          <X className="h-6 w-6 text-gray-700" />
+        ) : (
+          <Menu className="h-6 w-6 text-gray-700" />
+        )}
       </button>
 
       {/* ───── Mobile backdrop ───── */}
@@ -45,10 +49,10 @@ export function EmployeeSidebar() {
       {/* ───── Sidebar ───── */}
       <aside
         className={`
-          fixed inset-y-0 left-0 z-40 flex flex-col w-56 h-screen
+          fixed inset-y-0 left-0 z-40 flex flex-col w-62 h-screen
           bg-white/95 backdrop-blur-sm border-r border-gray-200 shadow-lg
           transition-all duration-300 ease-in-out transform
-          ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          ${mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
           md:relative
         `}
       >
@@ -62,25 +66,30 @@ export function EmployeeSidebar() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+          <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-6 md:pb-10 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
             <div className="space-y-1">
-              {navItems.map(item => (
+              {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={close}
                   className={`
                     group flex items-center w-full rounded-xl px-3 py-3 text-sm md:text-base transition-all duration-200
-                    ${isActive(item.href)
-                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    ${
+                      isActive(item.href)
+                        ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                     }
                   `}
                 >
                   <item.icon
                     className={`
                       mr-3 h-5 w-5 flex-shrink-0 transition-transform
-                      ${isActive(item.href) ? "scale-110" : "group-hover:scale-110"}
+                      ${
+                        isActive(item.href)
+                          ? "scale-110"
+                          : "group-hover:scale-110"
+                      }
                     `}
                   />
                   <span className="truncate">{item.label}</span>
@@ -89,10 +98,16 @@ export function EmployeeSidebar() {
             </div>
           </nav>
 
-          {/* Logout */}
-          <div className="border-t border-gray-100 px-3 pb-30 pt-4 mt-auto">
+          {/* Spacer to push logout button down */}
+          <div className="flex-1"></div>
+
+          {/* Logout - Positioned lower in sidebar */}
+          <div className="border-t border-gray-100 px-3 pt-4 pb-6">
             <button
-              onClick={() => { logout(); close(); }}
+              onClick={() => {
+                logout();
+                close();
+              }}
               className={`
                 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-red-600
                 px-3 py-3 text-white font-medium text-sm md:text-base shadow-md

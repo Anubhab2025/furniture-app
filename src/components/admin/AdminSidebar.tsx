@@ -24,7 +24,6 @@ export function AdminSidebar() {
 
   const navItems = [
     { href: "/admin", label: "Dashboard", icon: BarChart3 },
-
     { href: "/admin/customers", label: "Customers", icon: Users },
     { href: "/admin/quotations", label: "Quotations", icon: FileText },
   ];
@@ -93,12 +92,15 @@ export function AdminSidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="space-y-1 flex-1">
+        <nav className="space-y-1">
           <NavLinks />
         </nav>
 
-        {/* Logout - Fixed at Bottom */}
-        <div className="mt-20 pt-10 mb-24 border-t border-gray-100">
+        {/* Spacer to push logout button down */}
+        <div className="flex-1"></div>
+
+        {/* Logout - Positioned lower in sidebar */}
+        <div className="pt-10 border-t border-gray-100">
           <button
             onClick={logout}
             className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5 gap-2"
