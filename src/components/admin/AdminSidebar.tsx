@@ -57,7 +57,7 @@ export function AdminSidebar() {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200 px-4 py-3 flex items-center justify-between">
         <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Furniture Co.
+          Curioushues
         </h1>
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
@@ -88,7 +88,7 @@ export function AdminSidebar() {
         {/* Logo & Title */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Furniture Co.
+            Curioushues
           </h1>
           <p className="text-sm text-gray-500 mt-1">Admin Panel</p>
         </div>

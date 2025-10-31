@@ -28,7 +28,7 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
           <header className="bg-card border-b border-border sticky top-0 z-10">
             <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Furniture Co.</h1>
+                <h1 className="text-2xl font-bold text-foreground">Curioushues</h1>
                 <p className="text-sm text-muted-foreground">Customer Portal</p>
               </div>
               <div className="flex items-center gap-4">

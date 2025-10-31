@@ -30,7 +30,10 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import jsPDF from "jspdf";
-import { generateQuotationPDF, generatePDFBlob } from "@/src/utils/pdfGenerator";
+import {
+  generateQuotationPDF,
+  generatePDFBlob,
+} from "@/src/utils/pdfGenerator";
 
 export default function HistoryPage() {
   const { quotations, updateQuotation } = useEmployee();
@@ -159,15 +162,23 @@ export default function HistoryPage() {
 
     try {
       // Generate PDF as blob for sharing
-      const pdfBlob = await generatePDFBlob(sendingQuotation, customer, products);
-      const pdfFile = new File([pdfBlob], `quotation-${sendingQuotation.id}.pdf`, {
-        type: 'application/pdf'
-      });
+      const pdfBlob = await generatePDFBlob(
+        sendingQuotation,
+        customer,
+        products
+      );
+      const pdfFile = new File(
+        [pdfBlob],
+        `quotation-${sendingQuotation.id}.pdf`,
+        {
+          type: "application/pdf",
+        }
+      );
 
       // Always use the reliable approach: Download PDF + WhatsApp with clear instructions
       // Create download link and trigger download
       const url = URL.createObjectURL(pdfBlob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = `quotation-${sendingQuotation.id}.pdf`;
       document.body.appendChild(a);
@@ -195,11 +206,13 @@ export default function HistoryPage() {
       const updated = { ...sendingQuotation, status: "sent" as const };
       updateQuotation(updated.id, updated);
 
-      alert(`PDF downloaded! WhatsApp will open - please attach the downloaded PDF to your message.`);
+      alert(
+        `PDF downloaded! WhatsApp will open - please attach the downloaded PDF to your message.`
+      );
       closeSend();
     } catch (error) {
-      console.error('Error sending quotation:', error);
-      alert('Error sending quotation. Please try again.');
+      console.error("Error sending quotation:", error);
+      alert("Error sending quotation. Please try again.");
     }
   };
 

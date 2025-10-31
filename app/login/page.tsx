@@ -1,7 +1,6 @@
 "use client";
 
-import type React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
@@ -18,17 +17,11 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    console.log("🔑 Login attempt:", { email, password: "***" });
-
     try {
-      login(email, password);
-      console.log("✅ Login successful, redirecting to home...");
-      // Give a small delay for state to update
-      setTimeout(() => {
-        router.push("/");
-      }, 100);
+      await login(email, password);
+      setTimeout(() => router.push("/"), 300);
     } catch (err) {
-      console.log("❌ Login failed:", err);
+      console.error("❌ Login failed:", err);
       setError("Invalid email or password");
     } finally {
       setLoading(false);
@@ -46,209 +39,82 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        minHeight: "100vh",
-        background: "linear-gradient(to bottom right, #1e40af, #1e3a8a)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "1rem",
-        overflow: "auto",
-        boxSizing: "border-box",
-      }}
-    >
-      <div
-        style={{
-          background: "white",
-          borderRadius: "0.5rem",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-          padding: "2.5rem",
-          maxWidth: "28rem",
-          width: "100%",
-          margin: "auto",
-          boxSizing: "border-box",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "1.875rem",
-            fontWeight: "bold",
-            marginBottom: "0.5rem",
-            color: "#1f2937",
-          }}
-        >
-          Login
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-100 via-gray-200 to-purple-100 p-6">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+        <h1 className="text-3xl font-bold text-gray-800 text-center mb-2">
+          Welcome Back 👋
         </h1>
-        <p style={{ color: "#6b7280", marginBottom: "1.5rem" }}>
-          Furniture Quotation System
-        </p>
+        <p className="text-gray-500 text-center mb-8">Curioushues Portal Login</p>
 
-        <form
-          onSubmit={handleSubmit}
-          style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-        >
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label
-              style={{
-                display: "block",
-                fontSize: "0.875rem",
-                fontWeight: "500",
-                color: "#1f2937",
-                marginBottom: "0.5rem",
-              }}
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "0.5rem 1rem",
-                border: "1px solid #d1d5db",
-                borderRadius: "0.5rem",
-                outline: "none",
-              }}
-              placeholder="Enter email"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent text-gray-700 placeholder-gray-400"
+              placeholder="Enter your email"
               required
             />
           </div>
 
           <div>
-            <label
-              style={{
-                display: "block",
-                fontSize: "0.875rem",
-                fontWeight: "500",
-                color: "#1f2937",
-                marginBottom: "0.5rem",
-              }}
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Password
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "0.5rem 1rem",
-                border: "1px solid #d1d5db",
-                borderRadius: "0.5rem",
-                outline: "none",
-              }}
-              placeholder="Enter password"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent text-gray-700 placeholder-gray-400"
+              placeholder="Enter your password"
               required
             />
           </div>
 
           {error && (
-            <div style={{ color: "#dc2626", fontSize: "0.875rem" }}>
-              {error}
-            </div>
+            <p className="text-red-500 text-sm text-center">{error}</p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            style={{
-              width: "100%",
-              background: loading ? "#9ca3af" : "#1e40af",
-              color: "white",
-              fontWeight: "600",
-              padding: "0.5rem 1rem",
-              borderRadius: "0.5rem",
-              border: "none",
-              cursor: loading ? "not-allowed" : "pointer",
-              transition: "background-color 0.2s",
-            }}
+            className={`w-full py-2 rounded-lg font-semibold transition-all duration-200 ${
+              loading
+                ? "bg-gray-400 text-gray-100 cursor-not-allowed"
+                : "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-md"
+            }`}
           >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
-        <div
-          style={{
-            marginTop: "1.5rem",
-            paddingTop: "1.5rem",
-            borderTop: "1px solid #e5e7eb",
-          }}
-        >
-          <p
-            style={{
-              fontSize: "0.875rem",
-              fontWeight: "500",
-              color: "#1f2937",
-              marginBottom: "0.75rem",
-            }}
-          >
+        {/* Demo Accounts Section */}
+        <div className="mt-8 border-t border-gray-200 pt-6">
+          <p className="text-sm font-medium text-gray-700 mb-3">
             Demo Accounts:
           </p>
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-          >
+          <div className="space-y-2">
             <button
+              type="button"
               onClick={() => fillDemoCredentials("admin")}
-              style={{
-                width: "100%",
-                textAlign: "left",
-                padding: "0.75rem",
-                background: "#eff6ff",
-                color: "#1e40af",
-                borderRadius: "0.25rem",
-                fontSize: "0.875rem",
-                border: "none",
-                cursor: "pointer",
-                transition: "background-color 0.2s",
-              }}
-              onMouseOver={(e) =>
-                ((e.target as HTMLElement).style.backgroundColor = "#dbeafe")
-              }
-              onMouseOut={(e) =>
-                ((e.target as HTMLElement).style.backgroundColor = "#eff6ff")
-              }
+              className="w-full text-left px-4 py-2 rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 transition-all"
             >
               Admin: admin@furniture.com
             </button>
             <button
+              type="button"
               onClick={() => fillDemoCredentials("employee")}
-              style={{
-                width: "100%",
-                textAlign: "left",
-                padding: "0.75rem",
-                background: "#f0fdf4",
-                color: "#16a34a",
-                borderRadius: "0.25rem",
-                fontSize: "0.875rem",
-                border: "none",
-                cursor: "pointer",
-                transition: "background-color 0.2s",
-              }}
-              onMouseOver={(e) =>
-                ((e.target as HTMLElement).style.backgroundColor = "#dcfce7")
-              }
-              onMouseOut={(e) =>
-                ((e.target as HTMLElement).style.backgroundColor = "#f0fdf4")
-              }
+              className="w-full text-left px-4 py-2 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 transition-all"
             >
               Employee: employee@furniture.com
             </button>
           </div>
-          <p
-            style={{
-              fontSize: "0.75rem",
-              color: "#6b7280",
-              marginTop: "0.75rem",
-            }}
-          >
-            Demo passwords: admin123 (admin), emp123 (employee)
+          <p className="text-xs text-gray-500 mt-3">
+            Passwords: <b>admin123</b> (admin), <b>emp123</b> (employee)
           </p>
         </div>
       </div>

@@ -209,14 +209,7 @@ export default function StaffDashboard() {
             <table className="w-full text-sm">
               <thead className="bg-slate-50">
                 <tr>
-                  {[
-                    "ID",
-                    "Customer",
-                    "Amount",
-                    "Status",
-                    "Date",
-                  
-                  ].map((h) => (
+                  {["ID", "Customer", "Amount", "Status", "Date"].map((h) => (
                     <th
                       key={h}
                       className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider"
