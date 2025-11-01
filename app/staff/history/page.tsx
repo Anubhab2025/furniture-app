@@ -27,6 +27,7 @@ import {
   MessageCircle,
   Mail,
   FileText,
+  Search,
 } from "lucide-react";
 import Image from "next/image";
 import jsPDF from "jspdf";
@@ -39,7 +40,8 @@ export default function HistoryPage() {
   const { quotations, updateQuotation } = useEmployee();
   const { customers, products, loading } = useAdmin();
 
-  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function HistoryPage() {
       setIsLoading(false);
     }
   }, [customers]);
+
   const [editingQuotation, setEditingQuotation] = useState<Quotation | null>(
     null
   );
@@ -67,10 +70,28 @@ export default function HistoryPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const filtered =
-    filterStatus === "all"
-      ? quotations
-      : quotations.filter((q) => q.status === filterStatus);
+  // Get customer name by ID
+  const getCustomerName = (customerId: string) => {
+    if (!customers.length) return "Loading...";
+    const customer = customers.find((c) => c.id === customerId);
+    if (!customer) {
+      console.warn(`Customer with ID ${customerId} not found`);
+      return `Customer ${customerId}`;
+    }
+    return customer.name;
+  };
+
+  // Filter quotations based on search term
+  const filtered = quotations.filter((quot) => {
+    if (!searchTerm) return true;
+
+    const searchLower = searchTerm.toLowerCase();
+    const matchesId = quot.id.toLowerCase().includes(searchLower);
+    const customerName = getCustomerName(quot.customerId).toLowerCase();
+    const matchesName = customerName.includes(searchLower);
+
+    return matchesId || matchesName;
+  });
 
   useEffect(() => {
     if (editingQuotation) {
@@ -107,15 +128,6 @@ export default function HistoryPage() {
     }
   };
 
-  const getCustomerName = (customerId: string) => {
-    if (!customers.length) return "Loading...";
-    const customer = customers.find((c) => c.id === customerId);
-    if (!customer) {
-      console.warn(`Customer with ID ${customerId} not found`);
-      return `Customer ${customerId}`;
-    }
-    return customer.name;
-  };
 
   const getCustomer = (customerId: string): Customer | undefined => {
     return customers.find((c) => c.id === customerId);
@@ -855,6 +867,18 @@ export default function HistoryPage() {
             <History className="w-7 h-7 md:w-8 md:h-8" />
             Quotation History
           </h1>
+          <div className="w-full md:w-80">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by ID or customer name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/80"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Desktop Table */}
@@ -874,7 +898,6 @@ export default function HistoryPage() {
                     "Customer",
                     "Items",
                     "Amount",
-                    "Status",
                     "Date",
                     "Actions",
                   ].map((h) => (
@@ -913,16 +936,6 @@ export default function HistoryPage() {
                     </td>
                     <td className="px-6 py-4 font-medium text-gray-900">
                       ₹{quot.total.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          quot.status
-                        )}`}
-                      >
-                        {getStatusIcon(quot.status)}
-                        {quot.status}
-                      </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {new Date(quot.createdAt).toLocaleDateString()}

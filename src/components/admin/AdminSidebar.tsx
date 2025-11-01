@@ -4,16 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/src/contexts/AuthContext";
-import {
-  BarChart3,
-  Users,
-  FileText,
-  Package,
-  Search,
-  LogOut,
-  Menu,
-  X,
-} from "lucide-react";
+import { BarChart3, Users, FileText, LogOut, Menu, X } from "lucide-react";
 
 export function AdminSidebar() {
   const pathname = usePathname();
@@ -85,9 +76,9 @@ export function AdminSidebar() {
           h-[calc(100vh-4rem)] lg:h-screen
         `}
       >
-        {/* Logo & Title */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        {/* Logo & Title - Desktop */}
+        <div className="hidden lg:block mb-8">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Curioushues
           </h1>
           <p className="text-sm text-gray-500 mt-1">Admin Panel</p>
@@ -98,8 +89,8 @@ export function AdminSidebar() {
           <NavLinks />
         </nav>
 
-        {/* Logout - Positioned after navigation */}
-        <div className="pt-4 border-t border-gray-100 mt-60">
+        {/* Logout Button */}
+        <div className="pt-4 border-t border-gray-100 mt-85 lg:mt-auto">
           <button
             onClick={logout}
             className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5 gap-2"

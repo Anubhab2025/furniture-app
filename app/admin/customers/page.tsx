@@ -3,7 +3,7 @@
 import type React from "react";
 import { useAdmin } from "@/src/contexts/AdminContext";
 import { useAuth } from "@/src/contexts/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Plus,
   User,
@@ -15,6 +15,7 @@ import {
   X,
   Save,
   Trash2,
+  Search,
 } from "lucide-react";
 
 /* --------------------------------------------------------------------- */
@@ -28,7 +29,10 @@ export default function AdminCustomersPage() {
   const [editingCustomer, setEditingCustomer] = useState<any | null>(null);
   const [viewingCustomer, setViewingCustomer] = useState<any | null>(null);
 
-  // Fallback persist in case provider effect doesn't run for any reason
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Fallback persist
   useEffect(() => {
     try {
       localStorage.setItem("admin-customers", JSON.stringify(customers));
@@ -41,6 +45,22 @@ export default function AdminCustomersPage() {
     whatsapp: "",
     email: "",
   });
+
+  /* ------------------- Filtered Customers ------------------- */
+  const filteredCustomers = useMemo(() => {
+    if (!searchQuery.trim()) return customers;
+
+    const query = searchQuery.toLowerCase().trim();
+    return customers.filter((c) => {
+      return (
+        c.id.toLowerCase().includes(query) ||
+        c.name.toLowerCase().includes(query) ||
+        (c.email && c.email.toLowerCase().includes(query)) ||
+        c.phone.includes(query) ||
+        (c.whatsapp && c.whatsapp.includes(query))
+      );
+    });
+  }, [customers, searchQuery]);
 
   /* ------------------- Form handling ------------------- */
   const resetForm = () => {
@@ -111,7 +131,10 @@ export default function AdminCustomersPage() {
 
         {/* ---------- HEADER ---------- */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8">
-        
+          <h1 className="hidden sm:flex text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent items-center gap-2">
+            <User className="w-7 h-7 md:w-8 md:h-8" />
+            My Customers
+          </h1>
 
           <button
             onClick={() => setShowAddForm(true)}
@@ -120,6 +143,32 @@ export default function AdminCustomersPage() {
             <Plus className="w-5 h-5" />
             Add Customer
           </button>
+        </div>
+
+        {/* ---------- SEARCH BAR ---------- */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by ID, Name, Email, or Phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-10 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm placeholder-gray-500 shadow-sm"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-gray-100 transition"
+              >
+                <X className="w-4 h-4 text-gray-400" />
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+            <Search className="w-3 h-3" />
+            {filteredCustomers.length} of {customers.length} customers
+          </p>
         </div>
 
         {/* ---------- ADD / EDIT MODAL ---------- */}
@@ -266,7 +315,7 @@ export default function AdminCustomersPage() {
           <div className="px-5 py-4 md:px-6 md:py-5 border-b border-gray-100">
             <h2 className="text-lg md:text-xl font-semibold text-gray-800 flex items-center gap-2">
               <User className="w-5 h-5 text-green-500" />
-              Customer List ({customers.length})
+              Customer List ({filteredCustomers.length})
             </h2>
           </div>
 
@@ -286,7 +335,7 @@ export default function AdminCustomersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {customers.map((c, i) => (
+                {filteredCustomers.map((c, i) => (
                   <CustomerRow
                     key={c.id}
                     customer={c}
@@ -302,7 +351,7 @@ export default function AdminCustomersPage() {
 
           {/* Mobile Cards */}
           <div className="md:hidden p-4 space-y-4">
-            {customers.map((c, i) => (
+            {filteredCustomers.map((c, i) => (
               <div
                 key={c.id}
                 className={`p-4 rounded-xl border ${
@@ -362,21 +411,41 @@ export default function AdminCustomersPage() {
           </div>
 
           {/* Empty state */}
-          {customers.length === 0 && (
+          {filteredCustomers.length === 0 && (
             <div className="text-center py-12 px-4">
-              <User className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No customers yet
-              </h3>
-              <p className="text-gray-500 mb-6">
-                Get started by adding your first customer.
-              </p>
-              <button
-                onClick={() => setShowAddForm(true)}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all font-semibold shadow-md hover:shadow-lg"
-              >
-                Add Customer
-              </button>
+              {searchQuery ? (
+                <>
+                  <Search className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No customers found
+                  </h3>
+                  <p className="text-gray-500 mb-6">
+                    Try adjusting your search.
+                  </p>
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                  >
+                    Clear search
+                  </button>
+                </>
+              ) : (
+                <>
+                  <User className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No customers yet
+                  </h3>
+                  <p className="text-gray-500 mb-6">
+                    Get started by adding your first customer.
+                  </p>
+                  <button
+                    onClick={() => setShowAddForm(true)}
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all font-semibold shadow-md hover:shadow-lg"
+                  >
+                    Add Customer
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>

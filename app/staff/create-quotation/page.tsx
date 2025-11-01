@@ -16,7 +16,6 @@ export default function CreateQuotationPage() {
 
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [items, setItems] = useState<QuotationItem[]>([]);
-  const [discount, setDiscount] = useState(0);
   const [tax, setTax] = useState(18);
   const [showCamera, setShowCamera] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -26,7 +25,13 @@ export default function CreateQuotationPage() {
     const customId = `custom-${Date.now()}`;
     setItems([
       ...items,
-      { productId: customId, quantity: 1, price: 0, discount: 0, customTitle: "" },
+      {
+        productId: customId,
+        quantity: 1,
+        price: 0,
+        discount: 0,
+        customTitle: "",
+      },
     ]);
   };
 
@@ -67,7 +72,9 @@ export default function CreateQuotationPage() {
   const closeCamera = () => {
     setShowCamera(null);
     if (videoRef.current?.srcObject) {
-      (videoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop());
+      (videoRef.current.srcObject as MediaStream)
+        .getTracks()
+        .forEach((track) => track.stop());
     }
   };
 
@@ -91,7 +98,7 @@ export default function CreateQuotationPage() {
     0
   );
   const taxAmount = Math.round((subtotal * tax) / 100);
-  const total = subtotal + taxAmount - discount;
+  const total = subtotal + taxAmount;
 
   const handleSubmit = () => {
     if (!selectedCustomer || items.length === 0) {
@@ -106,7 +113,7 @@ export default function CreateQuotationPage() {
       items,
       subtotal,
       tax: taxAmount,
-      discount,
+      discount: 0,
       total,
       status: "draft",
       versions: [],
@@ -166,7 +173,9 @@ export default function CreateQuotationPage() {
                 </h2>
                 <div className="space-y-4">
                   {items.map((item) => {
-                    const product = products.find((p) => p.id === item.productId);
+                    const product = products.find(
+                      (p) => p.id === item.productId
+                    );
                     return (
                       <div
                         key={item.productId}
@@ -271,7 +280,9 @@ export default function CreateQuotationPage() {
                                   <input
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => handleFileUpload(item.productId, e)}
+                                    onChange={(e) =>
+                                      handleFileUpload(item.productId, e)
+                                    }
                                     className="hidden"
                                   />
                                 </label>
@@ -304,7 +315,8 @@ export default function CreateQuotationPage() {
                               value={item.quantity}
                               onChange={(e) =>
                                 updateItem(item.productId, {
-                                  quantity: Number.parseInt(e.target.value) || 1,
+                                  quantity:
+                                    Number.parseInt(e.target.value) || 1,
                                 })
                               }
                               className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-sm"
@@ -335,7 +347,8 @@ export default function CreateQuotationPage() {
                               value={item.discount}
                               onChange={(e) =>
                                 updateItem(item.productId, {
-                                  discount: Number.parseInt(e.target.value) || 0,
+                                  discount:
+                                    Number.parseInt(e.target.value) || 0,
                                 })
                               }
                               className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-sm"
@@ -370,16 +383,6 @@ export default function CreateQuotationPage() {
                   <span className="text-gray-900 font-semibold">
                     ₹{taxAmount.toLocaleString()}
                   </span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600">Discount</span>
-                  <input
-                    type="number"
-                    min="0"
-                    value={discount}
-                    onChange={(e) => setDiscount(Number.parseInt(e.target.value) || 0)}
-                    className="w-20 px-2 py-1 border border-gray-200 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-sm"
-                  />
                 </div>
               </div>
 

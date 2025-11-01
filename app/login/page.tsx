@@ -42,10 +42,9 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-100 via-gray-200 to-purple-100 p-6">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
         <h1 className="text-3xl font-bold text-gray-800 text-center mb-2">
-          Welcome Back 👋
+        Curioushues
         </h1>
-        <p className="text-gray-500 text-center mb-8">Curioushues Portal Login</p>
-
+    
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -113,9 +112,7 @@ export default function LoginPage() {
               Employee: employee@furniture.com
             </button>
           </div>
-          <p className="text-xs text-gray-500 mt-3">
-            Passwords: <b>admin123</b> (admin), <b>emp123</b> (employee)
-          </p>
+        
         </div>
       </div>
     </div>

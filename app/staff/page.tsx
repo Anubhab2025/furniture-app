@@ -122,7 +122,7 @@ export default function StaffDashboard() {
         </div>
 
         {/* Quick Stats - Mobile Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           {[
             {
               label: "Today",
@@ -138,16 +138,6 @@ export default function StaffDashboard() {
               label: "Sent",
               value: sentQuotations.length,
               icon: <Send className="w-4 h-4" />,
-            },
-            {
-              label: "Approved",
-              value: approvedQuotations.length,
-              icon: <CheckCircle className="w-4 h-4" />,
-            },
-            {
-              label: "Rejected",
-              value: rejectedQuotations.length,
-              icon: <XCircle className="w-4 h-4" />,
             },
             {
               label: "Monthly",
@@ -209,7 +199,7 @@ export default function StaffDashboard() {
             <table className="w-full text-sm">
               <thead className="bg-slate-50">
                 <tr>
-                  {["ID", "Customer", "Amount", "Status", "Date"].map((h) => (
+                  {["ID", "Customer", "Amount", "Date"].map((h) => (
                     <th
                       key={h}
                       className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider"
@@ -247,9 +237,6 @@ export default function StaffDashboard() {
                     </td>
                     <td className="px-6 py-4 font-medium text-slate-900">
                       ₹{quot.total.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusBadge status={quot.status} />
                     </td>
                     <td className="px-6 py-4 text-slate-600">
                       {new Date(quot.createdAt).toLocaleDateString()}
