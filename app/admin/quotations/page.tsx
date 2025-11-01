@@ -163,7 +163,7 @@ export default function QuotationsPage() {
             <table className="w-full">
               <thead className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
                 <tr>
-                  {["ID", "Customer", "Amount", "Status", "Date", "Actions"].map((h) => (
+                  {["ID", "Customer", "Amount", "Date", "Actions"].map((h) => (
                     <th
                       key={h}
                       className="text-left py-4 px-6 font-semibold text-slate-700 text-sm uppercase tracking-wider"
@@ -201,21 +201,6 @@ export default function QuotationsPage() {
                     </td>
                     <td className="py-4 px-6 font-semibold text-slate-900">
                       ₹{quot.total.toLocaleString()}
-                    </td>
-                    <td className="py-4 px-6">
-                      <span
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
-                          quot.status === "approved"
-                            ? "bg-green-100 text-green-800"
-                            : quot.status === "sent"
-                            ? "bg-blue-100 text-blue-800"
-                            : quot.status === "rejected"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-amber-100 text-amber-800"
-                        }`}
-                      >
-                        {quot.status}
-                      </span>
                     </td>
                     <td className="py-4 px-6 text-sm text-slate-600 flex items-center gap-1">
                       <Calendar className="w-4 h-4" />

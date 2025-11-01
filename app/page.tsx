@@ -22,27 +22,11 @@ export default function Home() {
       } else if (user.role === "customer") {
         router.push("/customer/quotations")
       }
-    }
-  }, [isAuthenticated, user, router])
-
-  // Show loading while checking authentication
-  if (isLoading) {
-    console.log("⏳ Home page - Loading state")
-    return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #1e40af, #1e3a8a)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-        <div style={{ color: 'white', fontSize: '1.125rem' }}>Loading...</div>
-      </div>
-    )
-  }
-
-  // Redirect to login when not authenticated
-  if (!isAuthenticated) {
-    console.log("🔐 Home page - Not authenticated, redirecting to login")
-    useEffect(() => {
+    } else if (!isLoading && !isAuthenticated) {
+      console.log("🔐 Home page - Not authenticated, redirecting to login")
       router.push('/login')
-    }, [router])
-    return null
-  }
+    }
+  }, [isAuthenticated, user, router, isLoading])
 
   // This should not be reached due to redirect, but just in case
   console.log("⚠️ Home page - Unexpected state")

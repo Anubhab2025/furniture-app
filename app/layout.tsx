@@ -24,6 +24,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.className} bg-background text-foreground flex flex-col min-h-screen`}
+        suppressHydrationWarning={true}
       >
         <AuthProvider>
           <EmployeeProvider>

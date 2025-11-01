@@ -29,7 +29,6 @@ import {
   FileText,
   Search,
 } from "lucide-react";
-import Image from "next/image";
 import jsPDF from "jspdf";
 import {
   generateQuotationPDF,
@@ -127,7 +126,6 @@ export default function HistoryPage() {
         return "bg-yellow-100 text-yellow-800";
     }
   };
-
 
   const getCustomer = (customerId: string): Customer | undefined => {
     return customers.find((c) => c.id === customerId);
@@ -412,12 +410,10 @@ export default function HistoryPage() {
                             Attached Photo
                           </p>
                           <div className="relative w-full max-w-xs h-32 mx-auto rounded-lg overflow-hidden border border-gray-200">
-                            <Image
+                            <img
                               src={item.customPhoto}
                               alt="Item photo"
-                              fill
-                              className="object-cover"
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              className="w-full h-full object-cover"
                             />
                           </div>
                         </div>
@@ -717,11 +713,10 @@ export default function HistoryPage() {
                           <div className="flex gap-3 items-start">
                             {item.customPhoto ? (
                               <div className="relative w-14 h-14 rounded-lg overflow-hidden border">
-                                <Image
+                                <img
                                   src={item.customPhoto}
                                   alt=""
-                                  fill
-                                  className="object-cover"
+                                  className="w-full h-full object-cover"
                                 />
                               </div>
                             ) : (
@@ -893,21 +888,16 @@ export default function HistoryPage() {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  {[
-                    "ID",
-                    "Customer",
-                    "Items",
-                    "Amount",
-                    "Date",
-                    "Actions",
-                  ].map((h) => (
-                    <th
-                      key={h}
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      {h}
-                    </th>
-                  ))}
+                  {["ID", "Customer", "Items", "Amount", "Date", "Actions"].map(
+                    (h) => (
+                      <th
+                        key={h}
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        {h}
+                      </th>
+                    )
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
